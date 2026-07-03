@@ -1,7 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { WalletProvider, useWallet } from './context/WalletContext';
 import Layout from './components/Layout';
-import Connect from './pages/Connect';
+import Home from './pages/Home';
 import Dashboard from './pages/Dashboard';
 import CreateDeal from './pages/CreateDeal';
 import DealDetail from './pages/DealDetail';
@@ -11,7 +11,7 @@ function Gate({ children }) {
   if (checkingSession) {
     return <div className="min-h-screen flex items-center justify-center text-slate-400">Loading…</div>;
   }
-  if (!address) return <Connect />;
+  if (!address) return <Navigate to="/" replace />;
   return <Layout>{children}</Layout>;
 }
 
@@ -20,14 +20,7 @@ export default function App() {
     <WalletProvider>
       <BrowserRouter>
         <Routes>
-          <Route
-            path="/"
-            element={
-              <Gate>
-                <Navigate to="/dashboard" replace />
-              </Gate>
-            }
-          />
+          <Route path="/" element={<Home />} />
           <Route
             path="/dashboard"
             element={
