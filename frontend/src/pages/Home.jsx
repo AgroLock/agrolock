@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
+import { useLedger } from '../hooks/useLedger';
+import { useInView } from '../hooks/useInView';
+import Reveal from '../components/Reveal';
+import TiltPanel from '../components/TiltPanel';
+import NetworkCanvas from '../components/NetworkCanvas';
 
 const NAV_LINKS = [
   { href: '#how-it-works', label: 'How it works' },
@@ -73,6 +78,7 @@ export default function Home() {
   const { address, connect, connecting, error, checkingSession } = useWallet();
   const navigate = useNavigate();
   const [menuOpen, setMenuOpen] = useState(false);
+  const ledger = useLedger();
 
   useEffect(() => {
     if (address) navigate('/dashboard');
@@ -85,20 +91,20 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-ink-950 text-slate-100 selection:bg-brand-400/30 overflow-x-hidden">
-      <Nav connecting={connecting} checkingSession={checkingSession} onConnect={handleGetStarted} menuOpen={menuOpen} setMenuOpen={setMenuOpen} />
+      <Nav connecting={connecting} checkingSession={checkingSession} onConnect={handleGetStarted} menuOpen={menuOpen} setMenuOpen={setMenuOpen} ledger={ledger} />
       <Hero connecting={connecting} checkingSession={checkingSession} onConnect={handleGetStarted} error={error} />
-      <StatsBar />
+      <StatsBar ledger={ledger} />
       <ProblemSection />
       <HowItWorks />
       <SecuritySection />
       <StackSection />
       <FinalCta connecting={connecting} checkingSession={checkingSession} onConnect={handleGetStarted} />
-      <Footer />
+      <Footer ledger={ledger} />
     </div>
   );
 }
 
-function Nav({ connecting, checkingSession, onConnect, menuOpen, setMenuOpen }) {
+function Nav({ connecting, checkingSession, onConnect, menuOpen, setMenuOpen, ledger }) {
   return (
     <header className="sticky top-0 z-50 border-b border-white/5 bg-ink-950/70 backdrop-blur-xl">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
@@ -108,7 +114,8 @@ function Nav({ connecting, checkingSession, onConnect, menuOpen, setMenuOpen }) 
           </span>
           <span className="font-semibold text-lg tracking-tight">AgroLock</span>
           <span className="hidden sm:inline-flex status-pill bg-white/5 text-brand-300 border border-white/10 ml-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-400 animate-pulse" /> Testnet live
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-400 pulse-dot" />
+            {ledger ? `Ledger #${ledger.toLocaleString()}` : 'Testnet live'}
           </span>
         </a>
 
@@ -173,15 +180,43 @@ function Nav({ connecting, checkingSession, onConnect, menuOpen, setMenuOpen }) 
 }
 
 function Hero({ connecting, checkingSession, onConnect, error }) {
+  const sectionRef = useRef(null);
+
+  function onMouseMove(e) {
+    const el = sectionRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const px = (e.clientX - rect.left) / rect.width - 0.5;
+    const py = (e.clientY - rect.top) / rect.height - 0.5;
+    el.style.setProperty('--px', px.toFixed(3));
+    el.style.setProperty('--py', py.toFixed(3));
+  }
+
   return (
-    <section id="top" className="relative pt-20 pb-24 sm:pt-28 sm:pb-32">
+    <section
+      id="top"
+      ref={sectionRef}
+      onMouseMove={onMouseMove}
+      className="relative pt-20 pb-24 sm:pt-28 sm:pb-32 overflow-hidden"
+      style={{ '--px': 0, '--py': 0 }}
+    >
       <div className="absolute inset-0 grid-overlay" />
-      <div className="blob h-72 w-72 bg-brand-500 -top-10 left-[8%]" />
-      <div className="blob h-80 w-80 bg-gold-500 top-24 right-[5%]" style={{ animationDelay: '-6s' }} />
-      <div className="blob h-64 w-64 bg-brand-300 bottom-0 left-[35%]" style={{ animationDelay: '-11s' }} />
+      <NetworkCanvas className="absolute inset-0 h-full w-full opacity-70" />
+      <div
+        className="blob h-72 w-72 bg-brand-500 -top-10 left-[8%]"
+        style={{ transform: 'translate(calc(var(--px) * -30px), calc(var(--py) * -30px))' }}
+      />
+      <div
+        className="blob h-80 w-80 bg-gold-500 top-24 right-[5%]"
+        style={{ animationDelay: '-6s', transform: 'translate(calc(var(--px) * 40px), calc(var(--py) * 40px))' }}
+      />
+      <div
+        className="blob h-64 w-64 bg-brand-300 bottom-0 left-[35%]"
+        style={{ animationDelay: '-11s', transform: 'translate(calc(var(--px) * -20px), calc(var(--py) * 20px))' }}
+      />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-        <span className="inline-flex items-center gap-2 status-pill glass text-brand-200 mb-6">
+        <span className="inline-flex items-center gap-2 status-pill glass text-brand-200 mb-6 reveal in-view">
           <IconSparkle /> Built for the GrantFox Maintainer Program &middot; Stellar &amp; Soroban
         </span>
         <h1 className="text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.05]">
@@ -196,13 +231,13 @@ function Hero({ connecting, checkingSession, onConnect, error }) {
           <button
             onClick={onConnect}
             disabled={connecting || checkingSession}
-            className="w-full sm:w-auto rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 px-7 py-3.5 font-semibold text-ink-950 hover:brightness-110 transition disabled:opacity-60 shadow-[0_0_40px_rgba(52,211,153,0.3)]"
+            className="shimmer w-full sm:w-auto rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 px-7 py-3.5 font-semibold text-ink-950 hover:brightness-110 hover:-translate-y-0.5 transition disabled:opacity-60 shadow-[0_0_40px_rgba(52,211,153,0.3)]"
           >
             {connecting ? 'Connecting…' : 'Connect wallet to get started →'}
           </button>
           <a
             href="#how-it-works"
-            className="w-full sm:w-auto rounded-xl glass px-7 py-3.5 font-semibold text-slate-200 hover:border-brand-400/40 transition text-center"
+            className="w-full sm:w-auto rounded-xl glass px-7 py-3.5 font-semibold text-slate-200 hover:border-brand-400/40 hover:-translate-y-0.5 transition text-center"
           >
             See how it works
           </a>
@@ -225,12 +260,18 @@ function Hero({ connecting, checkingSession, onConnect, error }) {
   );
 }
 
-function StatsBar() {
+function StatsBar({ ledger }) {
+  const [ref, inView] = useInView();
+  const items = ledger ? [...STATS, { label: 'Current ledger', value: `#${ledger.toLocaleString()}` }] : STATS;
   return (
-    <section className="relative border-y border-white/5 bg-white/[0.02]">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-2 sm:grid-cols-4 gap-6">
-        {STATS.map((s) => (
-          <div key={s.label} className="text-center">
+    <section ref={ref} className="relative border-y border-white/5 bg-white/[0.02]">
+      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-10 grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-5 gap-6">
+        {items.map((s, i) => (
+          <div
+            key={s.label}
+            className={`text-center stat-pop ${inView ? 'in-view' : ''}`}
+            style={{ animationDelay: `${i * 90}ms` }}
+          >
             <p className="text-2xl sm:text-3xl font-semibold gradient-text">{s.value}</p>
             <p className="mt-1 text-xs uppercase tracking-wide text-slate-500">{s.label}</p>
           </div>
@@ -243,16 +284,20 @@ function StatsBar() {
 function ProblemSection() {
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-24">
-      <SectionHeading eyebrow="The problem" title="Capital that can't reach the ground" />
+      <Reveal>
+        <SectionHeading eyebrow="The problem" title="Capital that can't reach the ground" />
+      </Reveal>
       <div className="mt-12 grid sm:grid-cols-2 gap-5">
-        {PROBLEMS.map((p) => (
-          <div key={p.title} className="glass glow-border rounded-2xl p-6">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
-              <IconAlert />
-            </div>
-            <p className="mt-4 font-semibold text-slate-100">{p.title}</p>
-            <p className="mt-2 text-sm text-slate-400 leading-relaxed">{p.body}</p>
-          </div>
+        {PROBLEMS.map((p, i) => (
+          <Reveal key={p.title} delay={i * 80}>
+            <TiltPanel className="glass rounded-2xl p-6 h-full">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-rose-500/10 text-rose-400 border border-rose-500/20">
+                <IconAlert />
+              </div>
+              <p className="mt-4 font-semibold text-slate-100">{p.title}</p>
+              <p className="mt-2 text-sm text-slate-400 leading-relaxed">{p.body}</p>
+            </TiltPanel>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -262,17 +307,21 @@ function ProblemSection() {
 function HowItWorks() {
   return (
     <section id="how-it-works" className="relative max-w-6xl mx-auto px-4 sm:px-6 py-24">
-      <SectionHeading eyebrow="How it works" title="Neither party has to trust the other on faith" />
+      <Reveal>
+        <SectionHeading eyebrow="How it works" title="Neither party has to trust the other on faith" />
+      </Reveal>
       <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
         {STEPS.map((step, i) => (
-          <div key={step.title} className="glass glow-border rounded-2xl p-6 relative">
-            <span className="absolute top-5 right-5 text-4xl font-bold text-white/5">{`0${i + 1}`}</span>
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400/20 to-brand-700/20 text-brand-300 border border-brand-400/20">
-              <step.icon />
-            </div>
-            <p className="mt-4 font-semibold text-slate-100">{step.title}</p>
-            <p className="mt-2 text-sm text-slate-400 leading-relaxed">{step.body}</p>
-          </div>
+          <Reveal key={step.title} delay={i * 80}>
+            <TiltPanel className="glass rounded-2xl p-6 relative h-full">
+              <span className="absolute top-5 right-5 text-4xl font-bold text-white/5">{`0${i + 1}`}</span>
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400/20 to-brand-700/20 text-brand-300 border border-brand-400/20">
+                <step.icon />
+              </div>
+              <p className="mt-4 font-semibold text-slate-100">{step.title}</p>
+              <p className="mt-2 text-sm text-slate-400 leading-relaxed">{step.body}</p>
+            </TiltPanel>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -287,14 +336,18 @@ function SecuritySection() {
   ];
   return (
     <section id="security" className="max-w-6xl mx-auto px-4 sm:px-6 py-24">
-      <SectionHeading eyebrow="Security" title="Programmable trust, not blind trust" />
+      <Reveal>
+        <SectionHeading eyebrow="Security" title="Programmable trust, not blind trust" />
+      </Reveal>
       <div className="mt-12 grid sm:grid-cols-3 gap-5">
-        {points.map((p) => (
-          <div key={p.title} className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-6">
-            <IconShield className="text-gold-400" />
-            <p className="mt-4 font-semibold text-slate-100">{p.title}</p>
-            <p className="mt-2 text-sm text-slate-400 leading-relaxed">{p.body}</p>
-          </div>
+        {points.map((p, i) => (
+          <Reveal key={p.title} delay={i * 80}>
+            <TiltPanel className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-6 h-full">
+              <IconShield className="text-gold-400" />
+              <p className="mt-4 font-semibold text-slate-100">{p.title}</p>
+              <p className="mt-2 text-sm text-slate-400 leading-relaxed">{p.body}</p>
+            </TiltPanel>
+          </Reveal>
         ))}
       </div>
     </section>
@@ -305,17 +358,21 @@ function StackSection() {
   return (
     <section id="stack" className="relative py-24 border-y border-white/5 bg-white/[0.02]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
-        <SectionHeading eyebrow="Tech stack" title="Built on Stellar & Soroban" />
-        <p className="mt-4 text-slate-400 max-w-2xl">
-          Not a payments app with a blockchain bolted on — the milestone escrow genuinely needs a programmable,
-          multi-party contract layer, and Stellar's cost profile makes it viable at agricultural transaction sizes.
-        </p>
+        <Reveal>
+          <SectionHeading eyebrow="Tech stack" title="Built on Stellar & Soroban" />
+          <p className="mt-4 text-slate-400 max-w-2xl">
+            Not a payments app with a blockchain bolted on — the milestone escrow genuinely needs a programmable,
+            multi-party contract layer, and Stellar's cost profile makes it viable at agricultural transaction sizes.
+          </p>
+        </Reveal>
         <div className="mt-12 grid sm:grid-cols-3 gap-5">
-          {STACK.map((s) => (
-            <div key={s.name} className="glass rounded-2xl p-6">
-              <p className="font-semibold text-brand-300">{s.name}</p>
-              <p className="mt-2 text-sm text-slate-400 leading-relaxed">{s.body}</p>
-            </div>
+          {STACK.map((s, i) => (
+            <Reveal key={s.name} delay={i * 80}>
+              <TiltPanel className="glass rounded-2xl p-6 h-full">
+                <p className="font-semibold text-brand-300">{s.name}</p>
+                <p className="mt-2 text-sm text-slate-400 leading-relaxed">{s.body}</p>
+              </TiltPanel>
+            </Reveal>
           ))}
         </div>
         <div className="mt-8 flex flex-wrap gap-3 text-xs text-slate-500">
@@ -345,22 +402,24 @@ function FinalCta({ connecting, checkingSession, onConnect }) {
   return (
     <section className="relative max-w-5xl mx-auto px-4 sm:px-6 py-24 text-center">
       <div className="blob h-80 w-80 bg-brand-500 top-0 left-1/2 -translate-x-1/2" />
-      <div className="relative glass-strong rounded-3xl px-8 py-16">
-        <h2 className="text-3xl sm:text-4xl font-semibold">
-          See a real escrow move on <span className="gradient-text">Stellar Testnet</span>
-        </h2>
-        <p className="mt-4 text-slate-400 max-w-xl mx-auto">
-          Connect a wallet to view four live demo deals — funded, mid-milestone, disputed, and completed — or
-          create your own in under a minute.
-        </p>
-        <button
-          onClick={onConnect}
-          disabled={connecting || checkingSession}
-          className="mt-8 rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 px-8 py-3.5 font-semibold text-ink-950 hover:brightness-110 transition disabled:opacity-60 shadow-[0_0_40px_rgba(52,211,153,0.3)]"
-        >
-          {connecting ? 'Connecting…' : 'Connect wallet to view live deals'}
-        </button>
-      </div>
+      <Reveal>
+        <div className="relative glass-strong rounded-3xl px-8 py-16">
+          <h2 className="text-3xl sm:text-4xl font-semibold">
+            See a real escrow move on <span className="gradient-text">Stellar Testnet</span>
+          </h2>
+          <p className="mt-4 text-slate-400 max-w-xl mx-auto">
+            Connect a wallet to view four live demo deals — funded, mid-milestone, disputed, and completed — or
+            create your own in under a minute.
+          </p>
+          <button
+            onClick={onConnect}
+            disabled={connecting || checkingSession}
+            className="shimmer mt-8 rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 px-8 py-3.5 font-semibold text-ink-950 hover:brightness-110 hover:-translate-y-0.5 transition disabled:opacity-60 shadow-[0_0_40px_rgba(52,211,153,0.3)]"
+          >
+            {connecting ? 'Connecting…' : 'Connect wallet to view live deals'}
+          </button>
+        </div>
+      </Reveal>
     </section>
   );
 }
@@ -374,7 +433,7 @@ function SectionHeading({ eyebrow, title }) {
   );
 }
 
-function Footer() {
+function Footer({ ledger }) {
   return (
     <footer className="border-t border-white/5">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
@@ -426,7 +485,8 @@ function Footer() {
         <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <p>&copy; {new Date().getFullYear()} AgroLock. Testnet demo — no real funds are at risk.</p>
           <span className="status-pill glass text-brand-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-400 animate-pulse" /> Stellar Testnet
+            <span className="h-1.5 w-1.5 rounded-full bg-brand-400 pulse-dot" />
+            {ledger ? `Live · Ledger #${ledger.toLocaleString()}` : 'Stellar Testnet'}
           </span>
         </div>
       </div>

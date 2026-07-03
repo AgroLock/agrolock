@@ -42,8 +42,10 @@ export default function Dashboard() {
       )}
 
       <div className="grid gap-4 sm:grid-cols-2">
-        {deals?.map((deal) => (
-          <DealCard key={deal.id} deal={deal} address={address} />
+        {deals?.map((deal, i) => (
+          <div key={deal.id} className="card-enter" style={{ animationDelay: `${i * 70}ms` }}>
+            <DealCard deal={deal} address={address} />
+          </div>
         ))}
       </div>
     </div>
