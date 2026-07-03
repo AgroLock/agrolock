@@ -29,17 +29,20 @@ async function loadDeal(escrowId) {
 }
 
 // List deals where the authenticated wallet is buyer, farmer, or attestor.
+// Escrow reads hit Soroban RPC over the network, so fetch them all
+// concurrently rather than one at a time — with a growing demo deal count
+// a sequential loop here means the wait time scales linearly with it.
 dealsRouter.get('/', async (req, res) => {
   const ids = listDealMetadata().map((d) => d.escrowId);
+  const results = await Promise.allSettled(ids.map((id) => loadDeal(id)));
   const deals = [];
-  for (const id of ids) {
-    try {
-      const deal = await loadDeal(id);
-      if (isParty(req.user.address, deal)) deals.push(deal);
-    } catch (err) {
-      console.error(`failed to load escrow ${id}:`, err.message);
+  results.forEach((result, i) => {
+    if (result.status === 'fulfilled') {
+      if (isParty(req.user.address, result.value)) deals.push(result.value);
+    } else {
+      console.error(`failed to load escrow ${ids[i]}:`, result.reason?.message);
     }
-  }
+  });
   res.json({ deals });
 });
 

@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 
 // Lets someone view their deals read-only by pasting a public address —
@@ -8,12 +9,14 @@ import { useWallet } from '../context/WalletContext';
 // display is left to the parent (which already surfaces useWallet().error).
 export default function AddressConnect({ className = '' }) {
   const { connectWithAddress, connecting } = useWallet();
+  const navigate = useNavigate();
   const [open, setOpen] = useState(false);
   const [value, setValue] = useState('');
 
   async function handleSubmit(e) {
     e.preventDefault();
-    await connectWithAddress(value.trim());
+    const addr = await connectWithAddress(value.trim());
+    if (addr) navigate('/dashboard');
   }
 
   if (!open) {

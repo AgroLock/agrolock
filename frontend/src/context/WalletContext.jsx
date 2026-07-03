@@ -37,14 +37,20 @@ export function WalletProvider({ children }) {
       .finally(() => setCheckingSession(false));
   }, [establishSession]);
 
+  // Both return the connected address on success, or null on failure (the
+  // failure is also captured in `error`) — callers use the return value to
+  // decide whether to navigate, rather than relying on an effect that would
+  // fire on every mount where `address` already happens to be set.
   const connect = useCallback(async () => {
     setConnecting(true);
     setError(null);
     try {
       const addr = await connectFreighter();
       await establishSession(addr, 'freighter');
+      return addr;
     } catch (err) {
       setError(err.message);
+      return null;
     } finally {
       setConnecting(false);
     }
@@ -59,8 +65,10 @@ export function WalletProvider({ children }) {
           throw new Error("That doesn't look like a valid Stellar address (should start with G, 56 characters).");
         }
         await establishSession(addr, 'address');
+        return addr;
       } catch (err) {
         setError(err.message);
+        return null;
       } finally {
         setConnecting(false);
       }

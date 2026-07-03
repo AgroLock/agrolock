@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 import { useLedger } from '../hooks/useLedger';
@@ -36,16 +36,16 @@ const HIGHLIGHTS = [
 ];
 
 export default function Home() {
-  const { address, connect, connecting, error, checkingSession } = useWallet();
+  const { connect, connecting, error, checkingSession } = useWallet();
   const navigate = useNavigate();
   const ledger = useLedger();
 
-  useEffect(() => {
-    if (address) navigate('/dashboard');
-  }, [address, navigate]);
-
+  // Navigate only right after a successful connect from this page — not on
+  // every visit to "/" while already connected, which would make the
+  // homepage (and "Back to homepage" links) unreachable once signed in.
   async function handleGetStarted() {
-    await connect();
+    const addr = await connect();
+    if (addr) navigate('/dashboard');
   }
 
   return (

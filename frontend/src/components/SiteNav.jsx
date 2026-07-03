@@ -26,7 +26,11 @@ export default function SiteNav() {
       navigate('/dashboard');
       return;
     }
-    await connect();
+    const addr = await connect();
+    if (addr) {
+      setMenuOpen(false);
+      navigate('/dashboard');
+    }
   }
 
   return (
