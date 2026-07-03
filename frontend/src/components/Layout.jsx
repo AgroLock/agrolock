@@ -6,7 +6,7 @@ export default function Layout({ children }) {
   const { address, disconnect } = useWallet();
 
   return (
-    <div className="min-h-screen bg-ink-950 text-slate-100 flex flex-col">
+    <div className="min-h-screen text-slate-100 flex flex-col">
       <header className="sticky top-0 z-40 border-b border-white/5 bg-ink-950/80 backdrop-blur-xl">
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
           <Link to="/dashboard" className="flex items-center gap-2.5">

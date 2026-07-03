@@ -5,7 +5,6 @@ import { useLedger } from '../hooks/useLedger';
 import { useInView } from '../hooks/useInView';
 import Reveal from '../components/Reveal';
 import TiltPanel from '../components/TiltPanel';
-import NetworkCanvas from '../components/NetworkCanvas';
 
 const NAV_LINKS = [
   { href: '#how-it-works', label: 'How it works' },
@@ -90,7 +89,7 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-ink-950 text-slate-100 selection:bg-brand-400/30 overflow-x-hidden">
+    <div className="min-h-screen text-slate-100 selection:bg-brand-400/30 overflow-x-hidden">
       <Nav connecting={connecting} checkingSession={checkingSession} onConnect={handleGetStarted} menuOpen={menuOpen} setMenuOpen={setMenuOpen} ledger={ledger} />
       <Hero connecting={connecting} checkingSession={checkingSession} onConnect={handleGetStarted} error={error} />
       <StatsBar ledger={ledger} />
@@ -200,8 +199,6 @@ function Hero({ connecting, checkingSession, onConnect, error }) {
       className="relative pt-20 pb-24 sm:pt-28 sm:pb-32 overflow-hidden"
       style={{ '--px': 0, '--py': 0 }}
     >
-      <div className="absolute inset-0 grid-overlay" />
-      <NetworkCanvas className="absolute inset-0 h-full w-full opacity-70" />
       <div
         className="blob h-72 w-72 bg-brand-500 -top-10 left-[8%]"
         style={{ transform: 'translate(calc(var(--px) * -30px), calc(var(--py) * -30px))' }}
