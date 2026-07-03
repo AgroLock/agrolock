@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { WalletProvider, useWallet } from './context/WalletContext';
 import Layout from './components/Layout';
 import SiteBackground from './components/SiteBackground';
@@ -33,7 +33,9 @@ export default function App() {
   return (
     <WalletProvider>
       <SiteBackground />
-      <BrowserRouter>
+      {/* HashRouter: GitHub Pages has no server-side rewrites, so deep
+          links / refreshes on a sub-route would 404 with BrowserRouter. */}
+      <HashRouter>
         <ScrollToTop />
         <Routes>
           <Route path="/" element={<Home />} />
@@ -66,7 +68,7 @@ export default function App() {
             }
           />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </WalletProvider>
   );
 }
