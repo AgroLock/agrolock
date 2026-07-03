@@ -1,17 +1,14 @@
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 import { useLedger } from '../hooks/useLedger';
 import { useInView } from '../hooks/useInView';
 import Reveal from '../components/Reveal';
 import TiltPanel from '../components/TiltPanel';
-
-const NAV_LINKS = [
-  { href: '#how-it-works', label: 'How it works' },
-  { href: '#security', label: 'Security' },
-  { href: '#stack', label: 'Tech stack' },
-  { href: 'https://github.com/Vicsygold/agrolock', label: 'GitHub', external: true },
-];
+import SiteNav from '../components/SiteNav';
+import SiteFooter from '../components/SiteFooter';
+import SectionHeading from '../components/SectionHeading';
+import { IconSparkle, IconAlert, IconHandshake, IconShield, IconLayers, IconArrowRight } from '../components/icons';
 
 const STATS = [
   { label: 'Milestone quorum', value: '2-of-3' },
@@ -20,63 +17,26 @@ const STATS = [
   { label: 'Live demo deals', value: '4' },
 ];
 
-const STEPS = [
-  {
-    title: 'Agreement',
-    icon: IconHandshake,
-    body: 'A buyer and a farmer agree on crop, quantity, price, delivery date, and a milestone schedule — right in the app.',
-  },
-  {
-    title: 'Funding',
-    icon: IconLock,
-    body: "The buyer commits the full amount upfront. It moves into escrow immediately, not into anyone's pocket.",
-  },
-  {
-    title: 'Milestone tracking',
-    icon: IconSprout,
-    body: 'A neutral local attestor — a cooperative officer or extension worker — verifies each stage: planting, mid-season growth, delivery.',
-  },
-  {
-    title: 'Multi-signature release',
-    icon: IconShield,
-    body: 'Each tranche needs sign-off from at least 2 of 3 parties before it moves. No single party can act alone.',
-  },
-  {
-    title: 'Cash-out',
-    icon: IconCoins,
-    body: 'The farmer receives payment in Naira, tranche by tranche, as milestones are confirmed — not one risky lump sum.',
-  },
-];
-
 const PROBLEMS = [
   {
     title: 'No collateral, no credit',
-    body: 'Farmers need cash upfront for seed, fertilizer, and labour — before a single naira of revenue exists, and formal lenders won\'t touch them.',
+    body: "Farmers need cash upfront for seed, fertilizer, and labour — before a single naira of revenue exists, and formal lenders won't touch them.",
   },
   {
     title: 'No proof of delivery',
-    body: "Buyers would gladly pay in advance to lock in supply, but have no reliable way to confirm a farmer will actually plant, tend, and deliver.",
-  },
-  {
-    title: 'Value leaks through middlemen',
-    body: 'Informal cooperatives and brokers fill the gap but leak value through fraud, underpayment, and delay — with no usable record left behind.',
-  },
-  {
-    title: 'Capital sits idle',
-    body: 'The result: money that wants to reach farmers stays on the sidelines because there\'s no trusted way to release it conditionally.',
+    body: 'Buyers would gladly pay in advance to lock in supply, but have no reliable way to confirm a farmer will actually plant, tend, and deliver.',
   },
 ];
 
-const STACK = [
-  { name: 'Soroban', body: 'Programmable milestone + multi-sig logic a plain payment rail can\'t express.' },
-  { name: 'Stellar', body: 'Sub-second finality and near-zero fees fit small, frequent agricultural payments.' },
-  { name: 'Anchors', body: 'Naira in, Naira out — the stablecoin settlement stays invisible to both sides.' },
+const HIGHLIGHTS = [
+  { icon: IconHandshake, title: 'Agreement in the app', body: 'Buyer and farmer set crop, price, and a milestone schedule together.' },
+  { icon: IconShield, title: '2-of-3 multi-signature', body: 'Buyer, farmer, and attestor — no single party moves funds alone.' },
+  { icon: IconLayers, title: 'Naira in, Naira out', body: 'Stablecoin settlement runs underneath; the UI only ever shows Naira.' },
 ];
 
 export default function Home() {
   const { address, connect, connecting, error, checkingSession } = useWallet();
   const navigate = useNavigate();
-  const [menuOpen, setMenuOpen] = useState(false);
   const ledger = useLedger();
 
   useEffect(() => {
@@ -84,97 +44,20 @@ export default function Home() {
   }, [address, navigate]);
 
   async function handleGetStarted() {
-    setMenuOpen(false);
     await connect();
   }
 
   return (
-    <div className="min-h-screen text-slate-100 selection:bg-brand-400/30 overflow-x-hidden">
-      <Nav connecting={connecting} checkingSession={checkingSession} onConnect={handleGetStarted} menuOpen={menuOpen} setMenuOpen={setMenuOpen} ledger={ledger} />
+    <div className="text-slate-100 selection:bg-brand-400/30">
+      <SiteNav />
       <Hero connecting={connecting} checkingSession={checkingSession} onConnect={handleGetStarted} error={error} />
       <StatsBar ledger={ledger} />
-      <ProblemSection />
-      <HowItWorks />
-      <SecuritySection />
-      <StackSection />
+      <ProblemTeaser />
+      <HighlightsTeaser />
+      <GrantFoxSection />
       <FinalCta connecting={connecting} checkingSession={checkingSession} onConnect={handleGetStarted} />
-      <Footer ledger={ledger} />
+      <SiteFooter />
     </div>
-  );
-}
-
-function Nav({ connecting, checkingSession, onConnect, menuOpen, setMenuOpen, ledger }) {
-  return (
-    <header className="sticky top-0 z-50 border-b border-white/5 bg-ink-950/70 backdrop-blur-xl">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 h-16 flex items-center justify-between">
-        <a href="#top" className="flex items-center gap-2.5 shrink-0">
-          <span className="relative flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-400 to-brand-700 font-bold text-ink-950 shadow-[0_0_20px_rgba(52,211,153,0.35)]">
-            ₦
-          </span>
-          <span className="font-semibold text-lg tracking-tight">AgroLock</span>
-          <span className="hidden sm:inline-flex status-pill bg-white/5 text-brand-300 border border-white/10 ml-1">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-400 pulse-dot" />
-            {ledger ? `Ledger #${ledger.toLocaleString()}` : 'Testnet live'}
-          </span>
-        </a>
-
-        <nav className="hidden md:flex items-center gap-8 text-sm text-slate-300">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target={link.external ? '_blank' : undefined}
-              rel={link.external ? 'noreferrer' : undefined}
-              className="hover:text-brand-300 transition"
-            >
-              {link.label}
-            </a>
-          ))}
-        </nav>
-
-        <div className="hidden md:block">
-          <button
-            onClick={onConnect}
-            disabled={connecting || checkingSession}
-            className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2 text-sm font-semibold text-ink-950 hover:brightness-110 transition disabled:opacity-60 shadow-[0_0_25px_rgba(52,211,153,0.25)]"
-          >
-            {connecting ? 'Connecting…' : 'Connect wallet'}
-          </button>
-        </div>
-
-        <button
-          className="md:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-300"
-          onClick={() => setMenuOpen((v) => !v)}
-          aria-label="Toggle menu"
-        >
-          {menuOpen ? <IconX /> : <IconMenu />}
-        </button>
-      </div>
-
-      {menuOpen && (
-        <div className="md:hidden border-t border-white/5 bg-ink-950/95 px-4 sm:px-6 py-4 space-y-4">
-          {NAV_LINKS.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              target={link.external ? '_blank' : undefined}
-              rel={link.external ? 'noreferrer' : undefined}
-              onClick={() => setMenuOpen(false)}
-              className="block text-slate-300 hover:text-brand-300"
-            >
-              {link.label}
-            </a>
-          ))}
-          <button
-            onClick={onConnect}
-            disabled={connecting || checkingSession}
-            className="w-full rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2.5 text-sm font-semibold text-ink-950 disabled:opacity-60"
-          >
-            {connecting ? 'Connecting…' : 'Connect wallet'}
-          </button>
-        </div>
-      )}
-    </header>
   );
 }
 
@@ -193,7 +76,6 @@ function Hero({ connecting, checkingSession, onConnect, error }) {
 
   return (
     <section
-      id="top"
       ref={sectionRef}
       onMouseMove={onMouseMove}
       className="relative pt-20 pb-24 sm:pt-28 sm:pb-32 overflow-hidden"
@@ -213,9 +95,12 @@ function Hero({ connecting, checkingSession, onConnect, error }) {
       />
 
       <div className="relative max-w-4xl mx-auto px-4 sm:px-6 text-center">
-        <span className="inline-flex items-center gap-2 status-pill glass text-brand-200 mb-6 reveal in-view">
-          <IconSparkle /> Built for the GrantFox Maintainer Program &middot; Stellar &amp; Soroban
-        </span>
+        <Link
+          to="/about"
+          className="inline-flex items-center gap-2 status-pill glass text-brand-200 mb-6 reveal in-view hover:border-brand-400/40 transition"
+        >
+          <IconSparkle /> Built for the Stellar GrantFox Maintainer Program
+        </Link>
         <h1 className="text-5xl sm:text-6xl font-semibold tracking-tight leading-[1.05]">
           Escrow that lets farmers <span className="gradient-text">get paid upfront</span> — safely.
         </h1>
@@ -232,12 +117,12 @@ function Hero({ connecting, checkingSession, onConnect, error }) {
           >
             {connecting ? 'Connecting…' : 'Connect wallet to get started →'}
           </button>
-          <a
-            href="#how-it-works"
+          <Link
+            to="/how-it-works"
             className="w-full sm:w-auto rounded-xl glass px-7 py-3.5 font-semibold text-slate-200 hover:border-brand-400/40 hover:-translate-y-0.5 transition text-center"
           >
             See how it works
-          </a>
+          </Link>
         </div>
         {error && <p className="mt-4 text-sm text-rose-400">{error}</p>}
         <p className="mt-5 text-xs text-slate-500">
@@ -278,11 +163,16 @@ function StatsBar({ ledger }) {
   );
 }
 
-function ProblemSection() {
+function ProblemTeaser() {
   return (
     <section className="max-w-6xl mx-auto px-4 sm:px-6 py-24">
       <Reveal>
-        <SectionHeading eyebrow="The problem" title="Capital that can't reach the ground" />
+        <div className="flex items-end justify-between flex-wrap gap-4">
+          <SectionHeading eyebrow="The problem" title="Capital that can't reach the ground" />
+          <Link to="/about" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-300 hover:text-brand-200 transition shrink-0">
+            Read the full picture <IconArrowRight />
+          </Link>
+        </div>
       </Reveal>
       <div className="mt-12 grid sm:grid-cols-2 gap-5">
         {PROBLEMS.map((p, i) => (
@@ -301,96 +191,74 @@ function ProblemSection() {
   );
 }
 
-function HowItWorks() {
+function HighlightsTeaser() {
   return (
-    <section id="how-it-works" className="relative max-w-6xl mx-auto px-4 sm:px-6 py-24">
-      <Reveal>
-        <SectionHeading eyebrow="How it works" title="Neither party has to trust the other on faith" />
-      </Reveal>
-      <div className="mt-12 grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-        {STEPS.map((step, i) => (
-          <Reveal key={step.title} delay={i * 80}>
-            <TiltPanel className="glass rounded-2xl p-6 relative h-full">
-              <span className="absolute top-5 right-5 text-4xl font-bold text-white/5">{`0${i + 1}`}</span>
-              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400/20 to-brand-700/20 text-brand-300 border border-brand-400/20">
-                <step.icon />
-              </div>
-              <p className="mt-4 font-semibold text-slate-100">{step.title}</p>
-              <p className="mt-2 text-sm text-slate-400 leading-relaxed">{step.body}</p>
-            </TiltPanel>
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function SecuritySection() {
-  const points = [
-    { title: '2-of-3 multi-signature', body: 'Buyer, farmer, and attestor — no single party can move funds alone, in either direction.' },
-    { title: 'Dispute → refund path', body: 'A missed milestone doesn\'t mean total loss. Any party can flag it, and quorum can refund the buyer instead.' },
-    { title: 'On-chain, auditable', body: 'Every escrow, vote, and payout is a public transaction — the foundation for a future credit history.' },
-  ];
-  return (
-    <section id="security" className="max-w-6xl mx-auto px-4 sm:px-6 py-24">
-      <Reveal>
-        <SectionHeading eyebrow="Security" title="Programmable trust, not blind trust" />
-      </Reveal>
-      <div className="mt-12 grid sm:grid-cols-3 gap-5">
-        {points.map((p, i) => (
-          <Reveal key={p.title} delay={i * 80}>
-            <TiltPanel className="rounded-2xl border border-white/10 bg-gradient-to-b from-white/[0.04] to-transparent p-6 h-full">
-              <IconShield className="text-gold-400" />
-              <p className="mt-4 font-semibold text-slate-100">{p.title}</p>
-              <p className="mt-2 text-sm text-slate-400 leading-relaxed">{p.body}</p>
-            </TiltPanel>
-          </Reveal>
-        ))}
-      </div>
-    </section>
-  );
-}
-
-function StackSection() {
-  return (
-    <section id="stack" className="relative py-24 border-y border-white/5 bg-white/[0.02]">
+    <section className="relative py-24 border-y border-white/5 bg-white/[0.02]">
       <div className="max-w-6xl mx-auto px-4 sm:px-6">
         <Reveal>
-          <SectionHeading eyebrow="Tech stack" title="Built on Stellar & Soroban" />
-          <p className="mt-4 text-slate-400 max-w-2xl">
-            Not a payments app with a blockchain bolted on — the milestone escrow genuinely needs a programmable,
-            multi-party contract layer, and Stellar's cost profile makes it viable at agricultural transaction sizes.
-          </p>
+          <div className="flex items-end justify-between flex-wrap gap-4">
+            <SectionHeading eyebrow="How it works" title="Neither party has to trust the other on faith" />
+            <Link to="/how-it-works" className="inline-flex items-center gap-1.5 text-sm font-medium text-brand-300 hover:text-brand-200 transition shrink-0">
+              Walk through every step <IconArrowRight />
+            </Link>
+          </div>
         </Reveal>
         <div className="mt-12 grid sm:grid-cols-3 gap-5">
-          {STACK.map((s, i) => (
-            <Reveal key={s.name} delay={i * 80}>
+          {HIGHLIGHTS.map((h, i) => (
+            <Reveal key={h.title} delay={i * 80}>
               <TiltPanel className="glass rounded-2xl p-6 h-full">
-                <p className="font-semibold text-brand-300">{s.name}</p>
-                <p className="mt-2 text-sm text-slate-400 leading-relaxed">{s.body}</p>
+                <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-gradient-to-br from-brand-400/20 to-brand-700/20 text-brand-300 border border-brand-400/20">
+                  <h.icon />
+                </div>
+                <p className="mt-4 font-semibold text-slate-100">{h.title}</p>
+                <p className="mt-2 text-sm text-slate-400 leading-relaxed">{h.body}</p>
               </TiltPanel>
             </Reveal>
           ))}
         </div>
-        <div className="mt-8 flex flex-wrap gap-3 text-xs text-slate-500">
-          <a
-            href="https://stellar.expert/explorer/testnet/contract/CCJL3R2YW6QRAOD2WOWYPQ5IJPC4YDTAGGPH6LHVXA2SD44FYAQIIU2B"
-            target="_blank"
-            rel="noreferrer"
-            className="glass rounded-full px-4 py-1.5 hover:text-brand-300 transition"
-          >
-            View AgroLock contract on stellar.expert ↗
-          </a>
-          <a
-            href="https://github.com/Vicsygold/agrolock"
-            target="_blank"
-            rel="noreferrer"
-            className="glass rounded-full px-4 py-1.5 hover:text-brand-300 transition"
-          >
-            Source on GitHub ↗
-          </a>
-        </div>
+        <Reveal delay={240}>
+          <div className="mt-8 flex flex-wrap gap-3 text-xs text-slate-500">
+            <Link to="/technology" className="glass rounded-full px-4 py-1.5 hover:text-brand-300 transition">
+              Why Stellar &amp; Soroban →
+            </Link>
+            <a
+              href="https://stellar.expert/explorer/testnet/contract/CCJL3R2YW6QRAOD2WOWYPQ5IJPC4YDTAGGPH6LHVXA2SD44FYAQIIU2B"
+              target="_blank"
+              rel="noreferrer"
+              className="glass rounded-full px-4 py-1.5 hover:text-brand-300 transition"
+            >
+              View contract on stellar.expert ↗
+            </a>
+          </div>
+        </Reveal>
       </div>
+    </section>
+  );
+}
+
+function GrantFoxSection() {
+  return (
+    <section className="max-w-5xl mx-auto px-4 sm:px-6 py-24">
+      <Reveal>
+        <TiltPanel max={3} className="glass-strong rounded-3xl p-8 sm:p-10 grid sm:grid-cols-[1fr_auto] gap-6 items-center">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-brand-400">GrantFox Maintainer Program</p>
+            <h2 className="mt-3 text-2xl sm:text-3xl font-semibold tracking-tight">
+              Real-world financial infrastructure, not a token bolted onto an app
+            </h2>
+            <p className="mt-3 text-slate-400 leading-relaxed max-w-2xl">
+              AgroLock is submitted to the Stellar GrantFox Maintainer Program as real-world asset financing for
+              underserved populations — built with Soroban's actual programmability, presented by Victor.
+            </p>
+          </div>
+          <Link
+            to="/about"
+            className="shrink-0 rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 px-6 py-3 font-semibold text-ink-950 hover:brightness-110 transition text-center"
+          >
+            Read the proposal
+          </Link>
+        </TiltPanel>
+      </Reveal>
     </section>
   );
 }
@@ -418,164 +286,5 @@ function FinalCta({ connecting, checkingSession, onConnect }) {
         </div>
       </Reveal>
     </section>
-  );
-}
-
-function SectionHeading({ eyebrow, title }) {
-  return (
-    <div className="max-w-2xl">
-      <p className="text-xs font-semibold uppercase tracking-widest text-brand-400">{eyebrow}</p>
-      <h2 className="mt-3 text-3xl sm:text-4xl font-semibold tracking-tight">{title}</h2>
-    </div>
-  );
-}
-
-function Footer({ ledger }) {
-  return (
-    <footer className="border-t border-white/5">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 py-16 grid sm:grid-cols-2 lg:grid-cols-4 gap-10">
-        <div>
-          <div className="flex items-center gap-2.5">
-            <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-brand-400 to-brand-700 font-bold text-ink-950">
-              ₦
-            </span>
-            <span className="font-semibold text-lg">AgroLock</span>
-          </div>
-          <p className="mt-4 text-sm text-slate-500 leading-relaxed">
-            Milestone escrow for Nigerian smallholder farmers, built on Stellar &amp; Soroban.
-          </p>
-        </div>
-
-        <FooterColumn
-          title="Product"
-          links={[
-            { label: 'How it works', href: '#how-it-works' },
-            { label: 'Security model', href: '#security' },
-            { label: 'Tech stack', href: '#stack' },
-          ]}
-        />
-        <FooterColumn
-          title="Resources"
-          links={[
-            { label: 'Source on GitHub', href: 'https://github.com/Vicsygold/agrolock', external: true },
-            { label: 'Freighter wallet', href: 'https://www.freighter.app/', external: true },
-            { label: 'Stellar developer docs', href: 'https://developers.stellar.org/', external: true },
-          ]}
-        />
-        <FooterColumn
-          title="Network"
-          links={[
-            {
-              label: 'AgroLock contract ↗',
-              href: 'https://stellar.expert/explorer/testnet/contract/CCJL3R2YW6QRAOD2WOWYPQ5IJPC4YDTAGGPH6LHVXA2SD44FYAQIIU2B',
-              external: true,
-            },
-            {
-              label: 'NGNT token contract ↗',
-              href: 'https://stellar.expert/explorer/testnet/contract/CC6NI3W4IVWTVUDAGACW6QLOJHD3RA346FOKTSSFKVSU27N63NWKAOWP',
-              external: true,
-            },
-          ]}
-        />
-      </div>
-      <div className="border-t border-white/5">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6 py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
-          <p>&copy; {new Date().getFullYear()} AgroLock. Testnet demo — no real funds are at risk.</p>
-          <span className="status-pill glass text-brand-300">
-            <span className="h-1.5 w-1.5 rounded-full bg-brand-400 pulse-dot" />
-            {ledger ? `Live · Ledger #${ledger.toLocaleString()}` : 'Stellar Testnet'}
-          </span>
-        </div>
-      </div>
-    </footer>
-  );
-}
-
-function FooterColumn({ title, links }) {
-  return (
-    <div>
-      <p className="text-sm font-semibold text-slate-200">{title}</p>
-      <ul className="mt-4 space-y-3">
-        {links.map((link) => (
-          <li key={link.label}>
-            <a
-              href={link.href}
-              target={link.external ? '_blank' : undefined}
-              rel={link.external ? 'noreferrer' : undefined}
-              className="text-sm text-slate-500 hover:text-brand-300 transition"
-            >
-              {link.label}
-            </a>
-          </li>
-        ))}
-      </ul>
-    </div>
-  );
-}
-
-// --- Minimal inline icon set (no external icon dependency) ---
-function IconSparkle() {
-  return (
-    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
-      <path d="M12 2l2.2 6.8L21 11l-6.8 2.2L12 20l-2.2-6.8L3 11l6.8-2.2z" />
-    </svg>
-  );
-}
-function IconMenu() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M4 7h16M4 12h16M4 17h16" strokeLinecap="round" />
-    </svg>
-  );
-}
-function IconX() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M6 6l12 12M18 6L6 18" strokeLinecap="round" />
-    </svg>
-  );
-}
-function IconAlert() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 9v4m0 4h.01M10.3 3.9L2.7 17a1.5 1.5 0 001.3 2.3h16a1.5 1.5 0 001.3-2.3L13.7 3.9a1.5 1.5 0 00-2.6 0z" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function IconHandshake() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M2 12l5-5 4 3 4-3 5 5-3 3-3-2-3 2-3-2z" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function IconLock() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <rect x="5" y="11" width="14" height="9" rx="2" />
-      <path d="M8 11V7a4 4 0 018 0v4" />
-    </svg>
-  );
-}
-function IconSprout() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 22V12M12 12C12 8 9 6 5 6c0 4 3 6 7 6zM12 12c0-4 3-6 7-6 0 4-3 6-7 6z" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function IconShield({ className = '' }) {
-  return (
-    <svg className={className} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <path d="M12 2l8 4v6c0 5-3.5 8.5-8 10-4.5-1.5-8-5-8-10V6z" strokeLinecap="round" strokeLinejoin="round" />
-    </svg>
-  );
-}
-function IconCoins() {
-  return (
-    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-      <ellipse cx="9" cy="7" rx="6" ry="3" />
-      <path d="M3 7v5c0 1.7 2.7 3 6 3s6-1.3 6-3V7M9 15v2c0 1.7 2.7 3 6 3s6-1.3 6-3v-2M21 12c0 1.7-2.7 3-6 3" strokeLinecap="round" />
-    </svg>
   );
 }
