@@ -8,6 +8,7 @@ import TiltPanel from '../components/TiltPanel';
 import SiteNav from '../components/SiteNav';
 import SiteFooter from '../components/SiteFooter';
 import SectionHeading from '../components/SectionHeading';
+import AddressConnect from '../components/AddressConnect';
 import { IconSparkle, IconAlert, IconHandshake, IconShield, IconLayers, IconArrowRight } from '../components/icons';
 
 const STATS = [
@@ -129,6 +130,9 @@ function Hero({ connecting, checkingSession, onConnect, error }) {
           Freighter is a desktop browser extension — open this site on a desktop browser (Chrome, Firefox, Brave,
           or Edge) with Freighter installed to connect a wallet.
         </p>
+        <div className="mt-3 max-w-xs mx-auto sm:hidden">
+          <AddressConnect />
+        </div>
         <p className="mt-5 text-xs text-slate-500 hidden sm:block">
           Live demo on Stellar Testnet — no real money moves. Don't have Freighter?{' '}
           <a

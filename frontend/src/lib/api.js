@@ -9,6 +9,22 @@ export function setToken(token) {
   else localStorage.removeItem('agrolock_token');
 }
 
+// Persists which way the session was established so a page refresh can
+// restore a read-only (pasted-address) session without re-prompting.
+export function setAuthMeta(address, method) {
+  if (address) localStorage.setItem('agrolock_address', address);
+  else localStorage.removeItem('agrolock_address');
+  if (method) localStorage.setItem('agrolock_auth_method', method);
+  else localStorage.removeItem('agrolock_auth_method');
+}
+
+export function getAuthMeta() {
+  return {
+    address: localStorage.getItem('agrolock_address'),
+    method: localStorage.getItem('agrolock_auth_method'),
+  };
+}
+
 async function request(path, { method = 'GET', body, auth = true } = {}) {
   const headers = { 'Content-Type': 'application/json' };
   if (auth) {

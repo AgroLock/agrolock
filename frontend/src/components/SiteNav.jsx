@@ -3,6 +3,7 @@ import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useWallet } from '../context/WalletContext';
 import { useLedger } from '../hooks/useLedger';
 import { IconMenu, IconX } from './icons';
+import AddressConnect from './AddressConnect';
 
 const NAV_LINKS = [
   { to: '/', label: 'Home' },
@@ -129,10 +130,13 @@ export default function SiteNav() {
             {connecting ? 'Connecting…' : address ? 'Go to dashboard' : 'Connect wallet'}
           </button>
           {!address && (
-            <p className="text-xs text-slate-500 leading-relaxed">
-              Freighter is a desktop browser extension — on phones and tablets, view the site here, then connect
-              from a desktop browser (Chrome, Firefox, Brave, or Edge) with Freighter installed.
-            </p>
+            <>
+              <p className="text-xs text-slate-500 leading-relaxed">
+                Freighter is a desktop browser extension — on phones and tablets, view the site here, then connect
+                from a desktop browser (Chrome, Firefox, Brave, or Edge) with Freighter installed.
+              </p>
+              <AddressConnect />
+            </>
           )}
           {error && !address && <p className="text-xs text-rose-300 leading-relaxed">{error}</p>}
         </div>

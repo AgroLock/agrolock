@@ -7,6 +7,10 @@ import { api } from '../lib/api';
 // `build` returns { unsignedXdr } from our backend; the signed result is
 // posted to /tx/submit (or a custom `submitFn` for special cases like deal
 // creation, which needs to resolve a local draft id).
+//
+// If the session was established read-only (pasted address, no Freighter),
+// this renders a disabled hint instead of an actionable button — signing
+// always requires a real wallet, so there's nothing this button could do.
 export default function TxButton({
   build,
   submitFn,
@@ -16,7 +20,7 @@ export default function TxButton({
   children,
   confirmLabel,
 }) {
-  const { address } = useWallet();
+  const { address, canSign } = useWallet();
   const [busy, setBusy] = useState(false);
   const [step, setStep] = useState(null);
 
@@ -36,6 +40,17 @@ export default function TxButton({
       setBusy(false);
       setStep(null);
     }
+  }
+
+  if (!canSign) {
+    return (
+      <span
+        title="Connect with Freighter on a desktop browser to sign this"
+        className={`${className} opacity-50 cursor-not-allowed`}
+      >
+        {confirmLabel || children} 🔒
+      </span>
+    );
   }
 
   return (

@@ -9,7 +9,7 @@ import { nairaToBaseUnits, formatNaira } from '../lib/currency';
 const emptyMilestone = (description) => ({ description, naira: '' });
 
 export default function CreateDeal() {
-  const { address } = useWallet();
+  const { address, canSign } = useWallet();
   const navigate = useNavigate();
 
   const [farmer, setFarmer] = useState('');
@@ -91,6 +91,13 @@ export default function CreateDeal() {
       <p className="text-sm text-slate-500 mb-6">
         You're creating this as the buyer. Funds you commit stay locked in escrow until milestones are confirmed.
       </p>
+
+      {!canSign && (
+        <div className="mb-6 glass rounded-2xl p-4 text-sm text-gold-200/90 border-gold-400/20">
+          You're viewing read-only (no Freighter signature available). Creating a deal requires signing — open this
+          site on a desktop browser with Freighter installed to continue.
+        </div>
+      )}
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="glass rounded-2xl p-5 space-y-4">
@@ -180,10 +187,10 @@ export default function CreateDeal() {
 
         <button
           type="submit"
-          disabled={submitting}
+          disabled={submitting || !canSign}
           className="w-full rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-3 font-semibold text-ink-950 hover:brightness-110 transition disabled:opacity-60 shadow-[0_0_30px_rgba(52,211,153,0.25)]"
         >
-          {submitting ? step || 'Working…' : 'Create deal'}
+          {submitting ? step || 'Working…' : canSign ? 'Create deal' : 'Create deal (requires Freighter)'}
         </button>
       </form>
     </div>

@@ -3,7 +3,7 @@ import { useWallet } from '../context/WalletContext';
 import { short } from '../lib/roles';
 
 export default function Layout({ children }) {
-  const { address, disconnect } = useWallet();
+  const { address, canSign, disconnect } = useWallet();
 
   return (
     <div className="min-h-screen text-slate-100 flex flex-col">
@@ -20,6 +20,11 @@ export default function Layout({ children }) {
           </Link>
           {address && (
             <div className="flex items-center gap-3 text-sm">
+              {!canSign && (
+                <span className="status-pill bg-gold-400/10 text-gold-300 border border-gold-400/20 hidden sm:inline-flex">
+                  Read-only
+                </span>
+              )}
               <span className="glass rounded-full px-3 py-1.5 text-slate-300 font-mono text-xs">{short(address)}</span>
               <button onClick={disconnect} className="text-slate-500 hover:text-brand-300 transition">
                 Disconnect
