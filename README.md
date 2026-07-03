@@ -2,6 +2,9 @@
 
 Milestone-based escrow financing for Nigerian smallholder farmers, built on Stellar & Soroban.
 
+**Live demo:** https://vicsygold.github.io/agrolock/
+**Backend API:** https://agrolock.onrender.com (free tier — the first request after a few minutes idle can take ~30-60s to wake up)
+
 ## The problem
 
 Smallholder farmers need cash upfront for seed, fertilizer, and labour, but have no
