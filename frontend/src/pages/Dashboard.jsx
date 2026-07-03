@@ -20,23 +20,23 @@ export default function Dashboard() {
     <div>
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-semibold text-brand-900">Your deals</h1>
+          <h1 className="text-xl font-semibold text-slate-100">Your deals</h1>
           <p className="text-sm text-slate-500">Every deal you're a buyer, farmer, or attestor on.</p>
         </div>
         <Link
           to="/deals/new"
-          className="rounded-lg bg-brand-700 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600 transition"
+          className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2 text-sm font-semibold text-ink-950 hover:brightness-110 transition"
         >
           + New deal
         </Link>
       </div>
 
-      {error && <p className="text-sm text-rose-600 mb-4">{error}</p>}
+      {error && <p className="text-sm text-rose-400 mb-4">{error}</p>}
 
       {deals === null && !error && <p className="text-slate-500">Loading your deals…</p>}
 
       {deals && deals.length === 0 && (
-        <div className="rounded-xl border border-dashed border-brand-200 bg-white p-10 text-center text-slate-500">
+        <div className="rounded-2xl border border-dashed border-white/10 bg-white/[0.02] p-10 text-center text-slate-500">
           No deals yet. Buyers can start one with "+ New deal" above.
         </div>
       )}

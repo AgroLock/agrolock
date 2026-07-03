@@ -10,11 +10,11 @@ export default function DealCard({ deal, address }) {
   return (
     <Link
       to={`/deals/${deal.id}`}
-      className="block rounded-xl border border-brand-100 bg-white p-5 hover:border-brand-400 hover:shadow-sm transition"
+      className="glass glow-border block rounded-2xl p-5"
     >
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-semibold text-brand-900">{deal.cropType || 'Supply deal'} — {deal.quantity || ''}</p>
+          <p className="font-semibold text-slate-100">{deal.cropType || 'Supply deal'} — {deal.quantity || ''}</p>
           <p className="text-sm text-slate-500 mt-0.5">
             {roles.map((r) => ROLE_LABELS[r]).join(' & ')} · Deal #{deal.id}
           </p>
@@ -23,8 +23,8 @@ export default function DealCard({ deal, address }) {
       </div>
       <div className="mt-4 flex items-end justify-between">
         <div>
-          <p className="text-xs text-slate-400 uppercase tracking-wide">Total value</p>
-          <p className="text-lg font-semibold text-brand-800">{formatNaira(deal.totalAmount)}</p>
+          <p className="text-xs text-slate-500 uppercase tracking-wide">Total value</p>
+          <p className="text-lg font-semibold gradient-text">{formatNaira(deal.totalAmount)}</p>
         </div>
         <p className="text-sm text-slate-500">
           {releasedCount} of {deal.milestones.length} milestones paid

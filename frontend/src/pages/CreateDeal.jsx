@@ -83,42 +83,42 @@ export default function CreateDeal() {
   }
 
   const inputClass =
-    'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500';
+    'w-full rounded-lg border border-white/10 bg-white/5 px-3 py-2 text-sm text-slate-100 placeholder:text-slate-500 focus:border-brand-400/50 focus:outline-none focus:ring-1 focus:ring-brand-400/50';
 
   return (
     <div className="max-w-2xl mx-auto">
-      <h1 className="text-xl font-semibold text-brand-900 mb-1">Start a new deal</h1>
+      <h1 className="text-xl font-semibold text-slate-100 mb-1">Start a new deal</h1>
       <p className="text-sm text-slate-500 mb-6">
         You're creating this as the buyer. Funds you commit stay locked in escrow until milestones are confirmed.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
-        <div className="rounded-xl border border-brand-100 bg-white p-5 space-y-4">
-          <h2 className="font-medium text-brand-800">Deal parties</h2>
+        <div className="glass rounded-2xl p-5 space-y-4">
+          <h2 className="font-medium text-slate-200">Deal parties</h2>
           <div>
-            <label className="text-sm text-slate-600">Farmer's wallet address</label>
+            <label className="text-sm text-slate-400">Farmer's wallet address</label>
             <input className={inputClass} value={farmer} onChange={(e) => setFarmer(e.target.value)} placeholder="G..." />
           </div>
           <div>
-            <label className="text-sm text-slate-600">Attestor's wallet address (cooperative officer / extension worker)</label>
+            <label className="text-sm text-slate-400">Attestor's wallet address (cooperative officer / extension worker)</label>
             <input className={inputClass} value={attestor} onChange={(e) => setAttestor(e.target.value)} placeholder="G..." />
           </div>
         </div>
 
-        <div className="rounded-xl border border-brand-100 bg-white p-5 space-y-4">
-          <h2 className="font-medium text-brand-800">Crop details</h2>
+        <div className="glass rounded-2xl p-5 space-y-4">
+          <h2 className="font-medium text-slate-200">Crop details</h2>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="text-sm text-slate-600">Crop type</label>
+              <label className="text-sm text-slate-400">Crop type</label>
               <input className={inputClass} value={cropType} onChange={(e) => setCropType(e.target.value)} placeholder="Maize" />
             </div>
             <div>
-              <label className="text-sm text-slate-600">Quantity</label>
+              <label className="text-sm text-slate-400">Quantity</label>
               <input className={inputClass} value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="5 tonnes" />
             </div>
           </div>
           <div>
-            <label className="text-sm text-slate-600">Expected delivery date</label>
+            <label className="text-sm text-slate-400">Expected delivery date</label>
             <input
               type="date"
               className={inputClass}
@@ -128,10 +128,10 @@ export default function CreateDeal() {
           </div>
         </div>
 
-        <div className="rounded-xl border border-brand-100 bg-white p-5 space-y-4">
+        <div className="glass rounded-2xl p-5 space-y-4">
           <div className="flex items-center justify-between">
-            <h2 className="font-medium text-brand-800">Milestone schedule</h2>
-            <button type="button" onClick={addMilestone} className="text-sm text-brand-600 hover:underline">
+            <h2 className="font-medium text-slate-200">Milestone schedule</h2>
+            <button type="button" onClick={addMilestone} className="text-sm text-brand-300 hover:underline">
               + Add milestone
             </button>
           </div>
@@ -155,7 +155,7 @@ export default function CreateDeal() {
                 <button
                   type="button"
                   onClick={() => removeMilestone(i)}
-                  className="text-slate-400 hover:text-rose-500 px-2 py-2"
+                  className="text-slate-500 hover:text-rose-400 px-2 py-2"
                   aria-label="Remove milestone"
                 >
                   ✕
@@ -164,10 +164,10 @@ export default function CreateDeal() {
             </div>
           ))}
           <p className="text-sm text-slate-500">
-            Total deal value: <span className="font-semibold text-brand-800">{formatNaira(nairaToBaseUnits(total))}</span>
+            Total deal value: <span className="font-semibold gradient-text">{formatNaira(nairaToBaseUnits(total))}</span>
           </p>
           <div>
-            <label className="text-sm text-slate-600">Signatures required to release each milestone (of 3 parties)</label>
+            <label className="text-sm text-slate-400">Signatures required to release each milestone (of 3 parties)</label>
             <select className={inputClass} value={quorum} onChange={(e) => setQuorum(e.target.value)}>
               <option value={2}>2 of 3 (recommended)</option>
               <option value={3}>All 3</option>
@@ -176,12 +176,12 @@ export default function CreateDeal() {
           </div>
         </div>
 
-        {error && <p className="text-sm text-rose-600">{error}</p>}
+        {error && <p className="text-sm text-rose-400">{error}</p>}
 
         <button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-lg bg-brand-700 px-4 py-3 font-medium text-white hover:bg-brand-600 transition disabled:opacity-60"
+          className="w-full rounded-xl bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-3 font-semibold text-ink-950 hover:brightness-110 transition disabled:opacity-60 shadow-[0_0_30px_rgba(52,211,153,0.25)]"
         >
           {submitting ? step || 'Working…' : 'Create deal'}
         </button>
