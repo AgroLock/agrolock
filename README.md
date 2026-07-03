@@ -57,8 +57,25 @@ token?" below.
 | AgroLock escrow | `CCJL3R2YW6QRAOD2WOWYPQ5IJPC4YDTAGGPH6LHVXA2SD44FYAQIIU2B` |
 | NGNT demo token | `CC6NI3W4IVWTVUDAGACW6QLOJHD3RA346FOKTSSFKVSU27N63NWKAOWP` |
 
-4 seeded demo deals already exist on-chain in different states (see Demo Script below):
-completed (#1), just-funded (#2), mid-milestone (#3), disputed (#4).
+16 seeded demo deals already exist on-chain in different states — completed, awaiting
+funding, funded, mid-milestone, a fresh unresolved dispute, a fully-refunded deal, and
+non-default quorums (unanimous 3-of-3, any-1-of-3) and milestone counts (2 and 4-step
+schedules). See **Test wallets** below to browse them without creating your own.
+
+## Test wallets
+
+Paste any of these into the app's "view read-only with a wallet address" option (no
+Freighter needed) to browse real seeded state, or import a secret key into Freighter on
+desktop (`stellar keys secret <name>` after running `setup-identities.sh`) to actually
+sign as that party.
+
+| Wallet | Address | What it shows |
+|---|---|---|
+| `buyer` | `GCQE3NLO3XTSESTBDOCT5WIQSJ5AT3DT3XAKFX75MSAHEPHED2HF5O2I` | 10 deals — Maize, Cassava, Sorghum, Rice, Yam, Plantain, Ginger, Tomato (quorum 3), Soybean (4 milestones), Cotton |
+| `buyer2` | `GCENWSTWI7CIL2S5IXKXEQBSZTP5E5FJQMVNVQEGTFLYW5PNCYU2ZRZW` | 6 deals — Cocoa, Groundnut, Beans (disputed), Sesame (quorum 1), Hibiscus/Zobo (fully refunded), Cashew |
+| `farmer` | `GDGVBHF3TYH5XKEDETRH2KM2WPUNLFC2OIJSK4QHA6QSUCWNVMHEKCF7` | Farmer on most `buyer`/`buyer2` deals — same data, farmer's-eye view |
+| `attestor` | `GA3TF7V6JNOUPN2PHA7WM2CWZNQFWFXGHEFNV5KHQWGOEUXT2GVG2C4R` | Attestor role across several deals |
+| `emptytest` | `GDU4AGPKOUXFFPOO632UNDM5K7YCNALUIXBLEJ4433DSX26KC3S5WZXG` | Party to **zero** deals — for testing the empty-dashboard state |
 
 ## How the contract works
 
@@ -127,9 +144,9 @@ with `stellar keys secret buyer` / `farmer` / `attestor` / `deployer` after runn
 
 ## Demo script (~3 minutes)
 
-1. **Open the app, connect Freighter as Buyer.** The dashboard shows all 4 seeded
-   deals — completed, just-funded, mid-milestone, and disputed — proving this is real
-   state on a public testnet, not a mock.
+1. **Open the app, connect Freighter as Buyer.** The dashboard shows the seeded
+   deals — completed, awaiting funding, mid-milestone, and disputed among them —
+   proving this is real state on a public testnet, not a mock.
 2. **Open the mid-milestone deal (Sorghum, #3).** Milestone 1 (planting) already shows
    "Payment released." Milestone 2 shows "1 of 2 confirmations collected" — the
    attestor already signed off.
