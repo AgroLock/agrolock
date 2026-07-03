@@ -1,0 +1,41 @@
+{
+  "deals": {
+    "1": {
+      "buyer": "GCQE3NLO3XTSESTBDOCT5WIQSJ5AT3DT3XAKFX75MSAHEPHED2HF5O2I",
+      "farmer": "GDGVBHF3TYH5XKEDETRH2KM2WPUNLFC2OIJSK4QHA6QSUCWNVMHEKCF7",
+      "attestor": "GA3TF7V6JNOUPN2PHA7WM2CWZNQFWFXGHEFNV5KHQWGOEUXT2GVG2C4R",
+      "cropType": "Maize",
+      "quantity": "5 tonnes",
+      "deliveryDate": "2026-11-01",
+      "escrowId": "1"
+    },
+    "2": {
+      "buyer": "GCQE3NLO3XTSESTBDOCT5WIQSJ5AT3DT3XAKFX75MSAHEPHED2HF5O2I",
+      "farmer": "GDGVBHF3TYH5XKEDETRH2KM2WPUNLFC2OIJSK4QHA6QSUCWNVMHEKCF7",
+      "attestor": "GA3TF7V6JNOUPN2PHA7WM2CWZNQFWFXGHEFNV5KHQWGOEUXT2GVG2C4R",
+      "cropType": "Cassava",
+      "quantity": "4 tonnes",
+      "deliveryDate": "2026-12-15",
+      "escrowId": "2"
+    },
+    "3": {
+      "buyer": "GCQE3NLO3XTSESTBDOCT5WIQSJ5AT3DT3XAKFX75MSAHEPHED2HF5O2I",
+      "farmer": "GDGVBHF3TYH5XKEDETRH2KM2WPUNLFC2OIJSK4QHA6QSUCWNVMHEKCF7",
+      "attestor": "GA3TF7V6JNOUPN2PHA7WM2CWZNQFWFXGHEFNV5KHQWGOEUXT2GVG2C4R",
+      "cropType": "Sorghum",
+      "quantity": "6 tonnes",
+      "deliveryDate": "2026-10-20",
+      "escrowId": "3"
+    },
+    "4": {
+      "buyer": "GCQE3NLO3XTSESTBDOCT5WIQSJ5AT3DT3XAKFX75MSAHEPHED2HF5O2I",
+      "farmer": "GDGVBHF3TYH5XKEDETRH2KM2WPUNLFC2OIJSK4QHA6QSUCWNVMHEKCF7",
+      "attestor": "GA3TF7V6JNOUPN2PHA7WM2CWZNQFWFXGHEFNV5KHQWGOEUXT2GVG2C4R",
+      "cropType": "Rice (paddy)",
+      "quantity": "3 tonnes",
+      "deliveryDate": "2026-09-05",
+      "escrowId": "4"
+    }
+  },
+  "drafts": {}
+}

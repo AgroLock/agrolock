@@ -1,0 +1,191 @@
+import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { StrKey } from '@stellar/stellar-sdk';
+import { useWallet } from '../context/WalletContext';
+import { signWithFreighter } from '../lib/freighter';
+import { api } from '../lib/api';
+import { nairaToBaseUnits, formatNaira } from '../lib/currency';
+
+const emptyMilestone = (description) => ({ description, naira: '' });
+
+export default function CreateDeal() {
+  const { address } = useWallet();
+  const navigate = useNavigate();
+
+  const [farmer, setFarmer] = useState('');
+  const [attestor, setAttestor] = useState('');
+  const [cropType, setCropType] = useState('');
+  const [quantity, setQuantity] = useState('');
+  const [deliveryDate, setDeliveryDate] = useState('');
+  const [milestones, setMilestones] = useState([
+    emptyMilestone('planting'),
+    emptyMilestone('mid-season growth'),
+    emptyMilestone('delivery'),
+  ]);
+  const [quorum, setQuorum] = useState(2);
+  const [submitting, setSubmitting] = useState(false);
+  const [step, setStep] = useState(null);
+  const [error, setError] = useState(null);
+
+  const total = milestones.reduce((sum, m) => sum + (Number(m.naira) || 0), 0);
+
+  function updateMilestone(i, field, value) {
+    setMilestones((prev) => prev.map((m, idx) => (idx === i ? { ...m, [field]: value } : m)));
+  }
+
+  function addMilestone() {
+    setMilestones((prev) => [...prev, emptyMilestone('')]);
+  }
+
+  function removeMilestone(i) {
+    setMilestones((prev) => prev.filter((_, idx) => idx !== i));
+  }
+
+  async function handleSubmit(e) {
+    e.preventDefault();
+    setError(null);
+
+    if (!StrKey.isValidEd25519PublicKey(farmer) || !StrKey.isValidEd25519PublicKey(attestor)) {
+      setError('Farmer and attestor must be valid Stellar addresses (starting with G).');
+      return;
+    }
+    if (milestones.some((m) => !m.description || !m.naira || Number(m.naira) <= 0)) {
+      setError('Every milestone needs a description and an amount greater than 0.');
+      return;
+    }
+
+    setSubmitting(true);
+    try {
+      setStep('Building the deal…');
+      const { draftId, unsignedXdr } = await api.createDealDraft({
+        farmer,
+        attestor,
+        cropType,
+        quantity,
+        deliveryDate,
+        quorum: Number(quorum),
+        milestones: milestones.map((m) => ({ description: m.description, amount: nairaToBaseUnits(m.naira) })),
+      });
+
+      setStep('Waiting for your signature in Freighter…');
+      const signedXdr = await signWithFreighter(unsignedXdr, address);
+
+      setStep('Creating the deal on Stellar Testnet…');
+      const { escrowId } = await api.submitDraft(draftId, signedXdr);
+
+      navigate(`/deals/${escrowId}`);
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setSubmitting(false);
+      setStep(null);
+    }
+  }
+
+  const inputClass =
+    'w-full rounded-lg border border-slate-200 px-3 py-2 text-sm focus:border-brand-500 focus:outline-none focus:ring-1 focus:ring-brand-500';
+
+  return (
+    <div className="max-w-2xl mx-auto">
+      <h1 className="text-xl font-semibold text-brand-900 mb-1">Start a new deal</h1>
+      <p className="text-sm text-slate-500 mb-6">
+        You're creating this as the buyer. Funds you commit stay locked in escrow until milestones are confirmed.
+      </p>
+
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <div className="rounded-xl border border-brand-100 bg-white p-5 space-y-4">
+          <h2 className="font-medium text-brand-800">Deal parties</h2>
+          <div>
+            <label className="text-sm text-slate-600">Farmer's wallet address</label>
+            <input className={inputClass} value={farmer} onChange={(e) => setFarmer(e.target.value)} placeholder="G..." />
+          </div>
+          <div>
+            <label className="text-sm text-slate-600">Attestor's wallet address (cooperative officer / extension worker)</label>
+            <input className={inputClass} value={attestor} onChange={(e) => setAttestor(e.target.value)} placeholder="G..." />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-brand-100 bg-white p-5 space-y-4">
+          <h2 className="font-medium text-brand-800">Crop details</h2>
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="text-sm text-slate-600">Crop type</label>
+              <input className={inputClass} value={cropType} onChange={(e) => setCropType(e.target.value)} placeholder="Maize" />
+            </div>
+            <div>
+              <label className="text-sm text-slate-600">Quantity</label>
+              <input className={inputClass} value={quantity} onChange={(e) => setQuantity(e.target.value)} placeholder="5 tonnes" />
+            </div>
+          </div>
+          <div>
+            <label className="text-sm text-slate-600">Expected delivery date</label>
+            <input
+              type="date"
+              className={inputClass}
+              value={deliveryDate}
+              onChange={(e) => setDeliveryDate(e.target.value)}
+            />
+          </div>
+        </div>
+
+        <div className="rounded-xl border border-brand-100 bg-white p-5 space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="font-medium text-brand-800">Milestone schedule</h2>
+            <button type="button" onClick={addMilestone} className="text-sm text-brand-600 hover:underline">
+              + Add milestone
+            </button>
+          </div>
+          {milestones.map((m, i) => (
+            <div key={i} className="flex gap-3 items-start">
+              <input
+                className={inputClass}
+                placeholder="e.g. mid-season growth"
+                value={m.description}
+                onChange={(e) => updateMilestone(i, 'description', e.target.value)}
+              />
+              <input
+                className={`${inputClass} w-40`}
+                placeholder="₦ amount"
+                type="number"
+                min="0"
+                value={m.naira}
+                onChange={(e) => updateMilestone(i, 'naira', e.target.value)}
+              />
+              {milestones.length > 1 && (
+                <button
+                  type="button"
+                  onClick={() => removeMilestone(i)}
+                  className="text-slate-400 hover:text-rose-500 px-2 py-2"
+                  aria-label="Remove milestone"
+                >
+                  ✕
+                </button>
+              )}
+            </div>
+          ))}
+          <p className="text-sm text-slate-500">
+            Total deal value: <span className="font-semibold text-brand-800">{formatNaira(nairaToBaseUnits(total))}</span>
+          </p>
+          <div>
+            <label className="text-sm text-slate-600">Signatures required to release each milestone (of 3 parties)</label>
+            <select className={inputClass} value={quorum} onChange={(e) => setQuorum(e.target.value)}>
+              <option value={2}>2 of 3 (recommended)</option>
+              <option value={3}>All 3</option>
+              <option value={1}>Any 1</option>
+            </select>
+          </div>
+        </div>
+
+        {error && <p className="text-sm text-rose-600">{error}</p>}
+
+        <button
+          type="submit"
+          disabled={submitting}
+          className="w-full rounded-lg bg-brand-700 px-4 py-3 font-medium text-white hover:bg-brand-600 transition disabled:opacity-60"
+        >
+          {submitting ? step || 'Working…' : 'Create deal'}
+        </button>
+      </form>
+    </div>
+  );
+}
