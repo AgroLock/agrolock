@@ -248,7 +248,7 @@ function GrantFoxSection() {
             </h2>
             <p className="mt-3 text-slate-400 leading-relaxed max-w-2xl">
               AgroLock is submitted to the Stellar GrantFox Maintainer Program as real-world asset financing for
-              underserved populations — built with Soroban's actual programmability, presented by Victor.
+              underserved populations — built with Soroban's actual programmability, developed by Victor Ameh.
             </p>
           </div>
           <Link

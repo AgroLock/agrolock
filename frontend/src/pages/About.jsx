@@ -54,8 +54,8 @@ export default function About() {
           <Reveal>
             <TiltPanel max={3} className="glass rounded-2xl p-6 grid sm:grid-cols-3 gap-6 text-sm">
               <div>
-                <p className="text-xs text-slate-500 uppercase tracking-wide">Presented by</p>
-                <p className="mt-1 font-medium text-slate-100">Victor</p>
+                <p className="text-xs text-slate-500 uppercase tracking-wide">Developer</p>
+                <p className="mt-1 font-medium text-slate-100">Victor Ameh</p>
               </div>
               <div>
                 <p className="text-xs text-slate-500 uppercase tracking-wide">Network</p>
