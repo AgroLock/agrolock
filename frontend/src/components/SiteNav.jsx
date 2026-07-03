@@ -14,14 +14,14 @@ const NAV_LINKS = [
 ];
 
 export default function SiteNav() {
-  const { address, connect, connecting, checkingSession } = useWallet();
+  const { address, connect, connecting, checkingSession, error } = useWallet();
   const navigate = useNavigate();
   const ledger = useLedger();
   const [menuOpen, setMenuOpen] = useState(false);
 
   async function handleConnect() {
-    setMenuOpen(false);
     if (address) {
+      setMenuOpen(false);
       navigate('/dashboard');
       return;
     }
@@ -69,7 +69,7 @@ export default function SiteNav() {
           )}
         </nav>
 
-        <div className="hidden md:block">
+        <div className="hidden md:block relative">
           <button
             onClick={handleConnect}
             disabled={connecting || checkingSession}
@@ -77,6 +77,11 @@ export default function SiteNav() {
           >
             {connecting ? 'Connecting…' : address ? 'Go to dashboard' : 'Connect wallet'}
           </button>
+          {error && !address && (
+            <div className="absolute right-0 top-full mt-2 w-72 glass-strong rounded-xl p-3 text-xs text-rose-300 leading-relaxed z-10">
+              {error}
+            </div>
+          )}
         </div>
 
         <button
@@ -123,6 +128,13 @@ export default function SiteNav() {
           >
             {connecting ? 'Connecting…' : address ? 'Go to dashboard' : 'Connect wallet'}
           </button>
+          {!address && (
+            <p className="text-xs text-slate-500 leading-relaxed">
+              Freighter is a desktop browser extension — on phones and tablets, view the site here, then connect
+              from a desktop browser (Chrome, Firefox, Brave, or Edge) with Freighter installed.
+            </p>
+          )}
+          {error && !address && <p className="text-xs text-rose-300 leading-relaxed">{error}</p>}
         </div>
       )}
     </header>
