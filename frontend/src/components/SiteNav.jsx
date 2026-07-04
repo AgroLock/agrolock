@@ -47,7 +47,7 @@ export default function SiteNav() {
           </span>
         </Link>
 
-        <nav className="hidden md:flex items-center gap-7 text-sm text-slate-300">
+        <nav className="hidden lg:flex items-center gap-6 text-sm text-slate-300">
           {NAV_LINKS.map((link) =>
             link.external ? (
               <a
@@ -74,11 +74,12 @@ export default function SiteNav() {
           )}
         </nav>
 
-        <div className="hidden md:block relative">
+        <div className="hidden lg:flex items-center gap-2.5 relative">
+          {!address && <AddressConnect alwaysOpen compact />}
           <button
             onClick={handleConnect}
             disabled={connecting || checkingSession}
-            className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2 text-sm font-semibold text-ink-950 hover:brightness-110 transition disabled:opacity-60 shadow-[0_0_25px_rgba(52,211,153,0.25)]"
+            className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2 text-sm font-semibold text-ink-950 hover:brightness-110 transition disabled:opacity-60 shadow-[0_0_25px_rgba(52,211,153,0.25)] shrink-0"
           >
             {connecting ? 'Connecting…' : address ? 'Go to dashboard' : 'Connect wallet'}
           </button>
@@ -90,7 +91,7 @@ export default function SiteNav() {
         </div>
 
         <button
-          className="md:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-300"
+          className="lg:hidden flex h-9 w-9 items-center justify-center rounded-lg border border-white/10 text-slate-300"
           onClick={() => setMenuOpen((v) => !v)}
           aria-label="Toggle menu"
         >
@@ -99,7 +100,7 @@ export default function SiteNav() {
       </div>
 
       {menuOpen && (
-        <div className="md:hidden border-t border-white/5 bg-ink-950/95 px-4 sm:px-6 py-4 space-y-4">
+        <div className="lg:hidden border-t border-white/5 bg-ink-950/95 px-4 sm:px-6 py-4 space-y-4">
           {NAV_LINKS.map((link) =>
             link.external ? (
               <a
@@ -136,10 +137,10 @@ export default function SiteNav() {
           {!address && (
             <>
               <p className="text-xs text-slate-500 leading-relaxed">
-                Freighter is a desktop browser extension — on phones and tablets, view the site here, then connect
-                from a desktop browser (Chrome, Firefox, Brave, or Edge) with Freighter installed.
+                Freighter is a desktop browser extension — on phones and tablets, connect with a wallet address
+                instead to browse read-only, or switch to a desktop browser with Freighter to sign transactions.
               </p>
-              <AddressConnect />
+              <AddressConnect alwaysOpen />
             </>
           )}
           {error && !address && <p className="text-xs text-rose-300 leading-relaxed">{error}</p>}

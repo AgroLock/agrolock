@@ -126,13 +126,16 @@ function Hero({ connecting, checkingSession, onConnect, error }) {
           </Link>
         </div>
         {error && <p className="mt-4 text-sm text-rose-400 max-w-md mx-auto">{error}</p>}
+
+        <div className="mt-6 flex flex-col items-center gap-2">
+          <p className="text-xs text-slate-500">or, no wallet needed —</p>
+          <AddressConnect alwaysOpen compact />
+        </div>
+
         <p className="mt-5 text-xs text-slate-500 sm:hidden">
           Freighter is a desktop browser extension — open this site on a desktop browser (Chrome, Firefox, Brave,
-          or Edge) with Freighter installed to connect a wallet.
+          or Edge) with Freighter installed to sign transactions.
         </p>
-        <div className="mt-3 max-w-xs mx-auto sm:hidden">
-          <AddressConnect />
-        </div>
         <p className="mt-5 text-xs text-slate-500 hidden sm:block">
           Live demo on Stellar Testnet — no real money moves. Don't have Freighter?{' '}
           <a
