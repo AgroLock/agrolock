@@ -1,0 +1,211 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+
+  --color-ink-950: #050a08;
+  --color-ink-900: #090f0d;
+  --color-ink-850: #0d1512;
+  --color-ink-800: #121c18;
+  --color-ink-700: #1a2620;
+  --color-ink-600: #24352c;
+
+  --color-brand-100: #dbf0dd;
+  --color-brand-200: #a7e6bd;
+  --color-brand-300: #6ee7ab;
+  --color-brand-400: #34d399;
+  --color-brand-500: #10b981;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #16351d;
+
+  --color-sand-50: #fbf9f4;
+  --color-sand-100: #f4efe2;
+
+  --color-gold-300: #fde68a;
+  --color-gold-400: #fbbf24;
+  --color-gold-500: #f59e0b;
+  --color-gold-600: #b45309;
+}
+
+body {
+  margin: 0;
+  background-color: var(--color-ink-950);
+  color: #eef6f1;
+  font-feature-settings: "cv11", "ss01";
+  overflow-x: hidden;
+}
+
+.status-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+}
+
+.glass {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.gradient-text {
+  background-image: linear-gradient(100deg, #6ee7ab 0%, #34d399 35%, #fbbf24 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.grid-overlay {
+  background-image: linear-gradient(rgba(255, 255, 255, 0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.045) 1px, transparent 1px);
+  background-size: 56px 56px;
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%);
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, black 40%, transparent 90%);
+}
+
+@keyframes blob-float {
+  0%, 100% { transform: translate(0, 0) scale(1); }
+  33% { transform: translate(3%, -4%) scale(1.06); }
+  66% { transform: translate(-3%, 3%) scale(0.96); }
+}
+
+.blob {
+  position: absolute;
+  border-radius: 9999px;
+  filter: blur(90px);
+  opacity: 0.35;
+  animation: blob-float 16s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.glow-border {
+  transition: border-color 0.25s ease, box-shadow 0.25s ease, transform 0.25s ease;
+}
+
+.glow-border:hover {
+  border-color: rgba(52, 211, 153, 0.45);
+  box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.15), 0 20px 40px -20px rgba(16, 185, 129, 0.35);
+}
+
+/* --- Scroll reveal --- */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.in-view {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* --- 3D tilt card --- */
+.tilt-card {
+  transform-style: preserve-3d;
+  transition: transform 0.2s ease-out, box-shadow 0.2s ease-out;
+  will-change: transform;
+}
+.tilt-card::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: inherit;
+  background: radial-gradient(
+    500px circle at var(--mx, 50%) var(--my, 50%),
+    rgba(52, 211, 153, 0.12),
+    transparent 55%
+  );
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+.tilt-card:hover::before {
+  opacity: 1;
+}
+
+/* --- Live pulse dot --- */
+@keyframes pulse-ring {
+  0% { box-shadow: 0 0 0 0 rgba(52, 211, 153, 0.55); }
+  100% { box-shadow: 0 0 0 8px rgba(52, 211, 153, 0); }
+}
+.pulse-dot {
+  animation: pulse-ring 1.8s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* --- Count / stat pop --- */
+@keyframes pop-in {
+  0% { opacity: 0; transform: scale(0.85) translateY(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.stat-pop {
+  opacity: 0;
+}
+.stat-pop.in-view {
+  animation: pop-in 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* --- Shimmer sweep for primary CTAs --- */
+.shimmer {
+  position: relative;
+  overflow: hidden;
+}
+.shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: -150%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(115deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+  transform: skewX(-20deg);
+  animation: shimmer-sweep 3.2s ease-in-out infinite;
+}
+@keyframes shimmer-sweep {
+  0% { left: -150%; }
+  45%, 100% { left: 150%; }
+}
+
+/* --- Marquee ticker --- */
+@keyframes marquee-scroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+.marquee-track {
+  animation: marquee-scroll 28s linear infinite;
+}
+
+@keyframes card-enter {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.card-enter {
+  animation: card-enter 0.5s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .blob,
+  .pulse-dot,
+  .shimmer::after,
+  .marquee-track,
+  .reveal,
+  .stat-pop,
+  .card-enter {
+    animation: none !important;
+    transition: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
+}
