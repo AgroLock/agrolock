@@ -86,9 +86,15 @@ export default function DealDetail() {
         {deal.status === 'Created' && roles.includes('buyer') && (
           <TxButton
             className="rounded-lg bg-gradient-to-r from-brand-400 to-brand-600 px-4 py-2.5 text-sm font-semibold text-ink-950 hover:brightness-110 transition"
-            build={() => api.fund(deal.id)}
+            build={async () => {
+              setNotice('Verifying wallet funds & constructing funding transaction...');
+              return api.fund(deal.id);
+            }}
             onSuccess={handleSuccess('Deal funded — the milestone payments below are now locked in escrow.')}
-            onError={setError}
+            onError={(err) => {
+              setNotice(null);
+              setError(err.message || 'Failed to construct funding transaction. Please check your wallet balance.');
+            }}
           >
             Fund this deal
           </TxButton>
