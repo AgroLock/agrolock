@@ -6,17 +6,35 @@ import { dealsRouter } from './routes/deals.js';
 import { txRouter } from './routes/tx.js';
 
 const app = express();
-app.use(cors());
-app.use(express.json());
 
-app.get('/health', (req, res) => res.json({ ok: true }));
+// Disable X-Powered-By header for security
+app.disable('x-powered-by');
+
+// CORS configuration
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// Body parser payload limits
+app.use(express.json({ limit: '100kb' }));
+
+// Request logging middleware
+app.use((req, res, next) => {
+  const timestamp = new Date().toISOString();
+  console.log(`[${timestamp}] ${req.method} ${req.url}`);
+  next();
+});
+
+app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
 app.use('/auth', authRouter);
 app.use('/deals', dealsRouter);
 app.use('/tx', txRouter);
 
 app.use((err, req, res, next) => {
-  console.error(err);
-  res.status(500).json({ error: 'Internal server error' });
+  console.error('[Error]', err);
+  res.status(err.status || 500).json({ error: err.message || 'Internal server error' });
 });
 
 app.listen(config.port, () => {
@@ -24,3 +42,4 @@ app.listen(config.port, () => {
   console.log(`AgroLock contract: ${config.agrolockContractId}`);
   console.log(`NGNT token contract: ${config.tokenContractId}`);
 });
+
