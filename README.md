@@ -180,3 +180,18 @@ anchor-issued asset, and the UI shows only Naira amounts throughout — see
   challenge before this goes anywhere near production.
 - **JSON-file metadata store** in the backend (`backend/data/deals.json`) instead of a
   real database — fine for a demo, not for production.
+
+## Security Audit & Issue Tracker
+
+A comprehensive codebase & security audit was conducted on this project. 7 tracked issues are documented in [`.github/issues/`](.github/issues/README.md) and published on the repository issue tracker:
+
+- 🔴 **[Issue #2](https://github.com/AgroLock/agrolock/issues/2)**: `[Contract] Asymmetric Dispute Resolution Flaw - Disputed milestones cannot be released to farmer`
+- 🟠 **[Issue #3](https://github.com/AgroLock/agrolock/issues/3)**: `[Backend] Unauthenticated JWT Issuance & Metadata Impersonation`
+- 🟠 **[Issue #4](https://github.com/AgroLock/agrolock/issues/4)**: `[Contract] Soroban Storage TTL Archival Risk on Long-Term Crop Cycles`
+- 🟡 **[Issue #5](https://github.com/AgroLock/agrolock/issues/5)**: `[Backend] Metadata Store Flat-File Dependency & Chain Desynchronization`
+- 🟡 **[Issue #6](https://github.com/AgroLock/agrolock/issues/6)**: `[Contract] Missing EscrowStatus::Funded assertion in release_tranche`
+- 🟢 **[Issue #7](https://github.com/AgroLock/agrolock/issues/7)**: `[Backend] Shared Reader Public Key Sequence Bottleneck during RPC Simulation`
+- 🟢 **[Issue #8](https://github.com/AgroLock/agrolock/issues/8)**: `[Frontend] Missing pre-flight token balance check before funding deal`
+
+See [`.github/issues/README.md`](file:///c:/Users/Victor%20Ameh/OneDrive/Desktop/Agro-lock/.github/issues/README.md) for full descriptions, affected line numbers, and recommended fixes.
+
