@@ -18,7 +18,7 @@
 //! less trust-dependent milestone verification. Out of scope for the MVP.
 
 #![no_std]
-use soroban_sdk::{contract, contracterror, contractimpl, contracttype, token, Address, Env, String, Vec};
+use soroban_sdk::{contract, contracterror, contractimpl, contracttype, symbol_short, token, Address, Env, String, Vec};
 
 #[contracttype]
 #[derive(Clone, Debug, Eq, PartialEq)]
@@ -141,7 +141,7 @@ impl AgroLockContract {
 
         let id = Self::next_id(&env);
         let escrow = Escrow {
-            buyer,
+            buyer: buyer.clone(),
             farmer,
             attestor,
             token,
@@ -151,6 +151,8 @@ impl AgroLockContract {
             milestones,
         };
         Self::save(&env, id, &escrow);
+
+        env.events().publish((symbol_short!("created"), id), (buyer, total_amount));
         Ok(id)
     }
 
@@ -169,6 +171,8 @@ impl AgroLockContract {
 
         escrow.status = EscrowStatus::Funded;
         Self::save(&env, escrow_id, &escrow);
+
+        env.events().publish((symbol_short!("funded"), escrow_id), escrow.buyer.clone());
         Ok(())
     }
 
@@ -191,10 +195,12 @@ impl AgroLockContract {
         if m.release_votes.contains(&signer) {
             return Err(Error::AlreadyVoted);
         }
-        m.release_votes.push_back(signer);
+        m.release_votes.push_back(signer.clone());
         let vote_count = m.release_votes.len();
         escrow.milestones.set(milestone_id, m);
         Self::save(&env, escrow_id, &escrow);
+
+        env.events().publish((symbol_short!("confirm"), escrow_id, milestone_id), signer);
         Ok(vote_count)
     }
 
@@ -204,6 +210,9 @@ impl AgroLockContract {
     /// releasing funds it already escrowed under its own address.
     pub fn release_tranche(env: Env, escrow_id: u64, milestone_id: u32) -> Result<(), Error> {
         let mut escrow = Self::load(&env, escrow_id)?;
+        if escrow.status != EscrowStatus::Funded {
+            return Err(Error::NotFunded);
+        }
         let mut m = escrow.milestones.get(milestone_id).ok_or(Error::InvalidMilestoneId)?;
         if m.status != MilestoneStatus::Pending {
             return Err(Error::MilestoneNotPending);
@@ -221,6 +230,8 @@ impl AgroLockContract {
             escrow.status = EscrowStatus::Completed;
         }
         Self::save(&env, escrow_id, &escrow);
+
+        env.events().publish((symbol_short!("released"), escrow_id, milestone_id), (escrow.farmer.clone(), m.amount));
         Ok(())
     }
 
@@ -239,6 +250,8 @@ impl AgroLockContract {
         m.status = MilestoneStatus::Disputed;
         escrow.milestones.set(milestone_id, m);
         Self::save(&env, escrow_id, &escrow);
+
+        env.events().publish((symbol_short!("disputed"), escrow_id, milestone_id), signer);
         Ok(())
     }
 
@@ -258,7 +271,7 @@ impl AgroLockContract {
         if m.refund_votes.contains(&signer) {
             return Err(Error::AlreadyVoted);
         }
-        m.refund_votes.push_back(signer);
+        m.refund_votes.push_back(signer.clone());
         let vote_count = m.refund_votes.len();
 
         if vote_count >= escrow.quorum {
@@ -272,6 +285,8 @@ impl AgroLockContract {
             escrow.status = EscrowStatus::Completed;
         }
         Self::save(&env, escrow_id, &escrow);
+
+        env.events().publish((symbol_short!("refunded"), escrow_id, milestone_id), (signer, m.amount));
         Ok(vote_count)
     }
 
