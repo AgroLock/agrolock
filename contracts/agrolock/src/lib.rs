@@ -290,6 +290,71 @@ impl AgroLockContract {
         Ok(vote_count)
     }
 
+    /// Allows any party to vote on resolving a disputed milestone, specifying
+    /// whether to release to the farmer (`release_to_farmer == true`) or refund to the buyer.
+    /// Once `quorum` votes are collected for either option, funds are transferred.
+    pub fn resolve_dispute(
+        env: Env,
+        escrow_id: u64,
+        milestone_id: u32,
+        release_to_farmer: bool,
+        signer: Address,
+    ) -> Result<u32, Error> {
+        signer.require_auth();
+        let mut escrow = Self::load(&env, escrow_id)?;
+        if escrow.status != EscrowStatus::Funded {
+            return Err(Error::NotFunded);
+        }
+        Self::require_party(&escrow, &signer)?;
+
+        let mut m = escrow.milestones.get(milestone_id).ok_or(Error::InvalidMilestoneId)?;
+        if m.status != MilestoneStatus::Disputed {
+            return Err(Error::MilestoneNotDisputed);
+        }
+
+        if release_to_farmer {
+            if m.release_votes.contains(&signer) {
+                return Err(Error::AlreadyVoted);
+            }
+            m.release_votes.push_back(signer.clone());
+            let vote_count = m.release_votes.len();
+
+            if vote_count >= escrow.quorum {
+                let token_client = token::Client::new(&env, &escrow.token);
+                token_client.transfer(&env.current_contract_address(), &escrow.farmer, &m.amount);
+                m.status = MilestoneStatus::Released;
+            }
+            escrow.milestones.set(milestone_id, m);
+
+            if Self::all_settled(&escrow) {
+                escrow.status = EscrowStatus::Completed;
+            }
+            Self::save(&env, escrow_id, &escrow);
+            env.events().publish((symbol_short!("resolved"), escrow_id, milestone_id), (signer, true));
+            Ok(vote_count)
+        } else {
+            if m.refund_votes.contains(&signer) {
+                return Err(Error::AlreadyVoted);
+            }
+            m.refund_votes.push_back(signer.clone());
+            let vote_count = m.refund_votes.len();
+
+            if vote_count >= escrow.quorum {
+                let token_client = token::Client::new(&env, &escrow.token);
+                token_client.transfer(&env.current_contract_address(), &escrow.buyer, &m.amount);
+                m.status = MilestoneStatus::Refunded;
+            }
+            escrow.milestones.set(milestone_id, m);
+
+            if Self::all_settled(&escrow) {
+                escrow.status = EscrowStatus::Completed;
+            }
+            Self::save(&env, escrow_id, &escrow);
+            env.events().publish((symbol_short!("resolved"), escrow_id, milestone_id), (signer, false));
+            Ok(vote_count)
+        }
+    }
+
     // ---- read-only views (no auth required) ----
 
     pub fn get_escrow(env: Env, escrow_id: u64) -> Result<Escrow, Error> {

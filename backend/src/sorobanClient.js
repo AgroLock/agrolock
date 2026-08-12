@@ -77,8 +77,19 @@ export async function buildDisputeTx({ source, escrowId, milestoneId, signer }) 
   return buildTx(source, agrolock(), 'dispute', [u64(escrowId), u32(milestoneId), addr(signer)]);
 }
 
+const bool = (b) => nativeToScVal(Boolean(b), { type: 'bool' });
+
 export async function buildRefundTx({ source, escrowId, milestoneId, signer }) {
   return buildTx(source, agrolock(), 'refund', [u64(escrowId), u32(milestoneId), addr(signer)]);
+}
+
+export async function buildResolveDisputeTx({ source, escrowId, milestoneId, releaseToFarmer, signer }) {
+  return buildTx(source, agrolock(), 'resolve_dispute', [
+    u64(escrowId),
+    u32(milestoneId),
+    bool(releaseToFarmer),
+    addr(signer),
+  ]);
 }
 
 export async function buildMintTx({ source, to, amount }) {

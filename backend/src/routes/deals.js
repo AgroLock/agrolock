@@ -8,6 +8,7 @@ import {
   buildReleaseTrancheTx,
   buildDisputeTx,
   buildRefundTx,
+  buildResolveDisputeTx,
   getEscrowOnChain,
   submitSignedTx,
 } from '../sorobanClient.js';
@@ -136,5 +137,6 @@ actionRoute('/:id/milestones/:milestoneId/confirm', buildConfirmMilestoneTx, { n
 actionRoute('/:id/milestones/:milestoneId/release', buildReleaseTrancheTx);
 actionRoute('/:id/milestones/:milestoneId/dispute', buildDisputeTx, { needsSigner: true });
 actionRoute('/:id/milestones/:milestoneId/refund', buildRefundTx, { needsSigner: true });
+actionRoute('/:id/milestones/:milestoneId/resolve', buildResolveDisputeTx, { needsSigner: true });
 
 export { saveDealMetadata };
