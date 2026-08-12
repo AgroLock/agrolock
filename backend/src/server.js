@@ -4,6 +4,7 @@ import { config } from './config.js';
 import { authRouter } from './routes/auth.js';
 import { dealsRouter } from './routes/deals.js';
 import { txRouter } from './routes/tx.js';
+import { startEventListener } from './eventListener.js';
 
 const app = express();
 
@@ -41,5 +42,6 @@ app.listen(config.port, () => {
   console.log(`AgroLock backend listening on http://localhost:${config.port}`);
   console.log(`AgroLock contract: ${config.agrolockContractId}`);
   console.log(`NGNT token contract: ${config.tokenContractId}`);
+  startEventListener();
 });
 
