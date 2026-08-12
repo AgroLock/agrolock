@@ -1,15 +1,31 @@
-// Wallet-based "login": connecting a Freighter wallet and presenting its
-// address is the authentication event, matching typical dApp UX — there's
-// no password. This JWT only gates API access to *our* metadata store; it
-// never authorizes fund movement. Every on-chain action still requires the
-// matching Stellar keypair to sign the transaction in Freighter, which is
-// the real security boundary.
-//
-// TODO (production hardening): require the wallet to sign a random
-// challenge nonce on /auth/connect and verify that signature server-side,
-// rather than trusting a bare submitted address.
 import jwt from 'jsonwebtoken';
+import { randomBytes } from 'node:crypto';
+import { Keypair } from '@stellar/stellar-sdk';
 import { config } from './config.js';
+
+const challengeStore = new Map();
+
+export function generateChallenge(address) {
+  const nonce = randomBytes(32).toString('hex');
+  const timestamp = Date.now();
+  const challenge = `AgroLock Auth Challenge: ${nonce}:${timestamp}`;
+  challengeStore.set(address, { challenge, timestamp });
+  return challenge;
+}
+
+export function verifyChallenge(address, signatureBase64) {
+  const stored = challengeStore.get(address);
+  if (!stored) throw new Error('No active challenge for this address');
+  if (Date.now() - stored.timestamp > 300000) { // 5 min TTL
+    challengeStore.delete(address);
+    throw new Error('Challenge expired');
+  }
+
+  const keypair = Keypair.fromPublicKey(address);
+  const isValid = keypair.verify(Buffer.from(stored.challenge), Buffer.from(signatureBase64, 'base64'));
+  challengeStore.delete(address);
+  return isValid;
+}
 
 export function issueToken(address) {
   return jwt.sign({ address }, config.jwtSecret, { expiresIn: '12h' });
