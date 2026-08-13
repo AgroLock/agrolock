@@ -29,6 +29,24 @@ app.use((req, res, next) => {
 });
 
 app.get('/health', (req, res) => res.json({ status: 'ok', timestamp: new Date().toISOString() }));
+app.get('/health/network', async (req, res) => {
+  try {
+    const { rpc } = await import('@stellar/stellar-sdk');
+    const server = new rpc.Server(config.rpcUrl);
+    const latestLedger = await server.getLatestLedger();
+    res.json({
+      status: 'ok',
+      network: 'testnet',
+      rpcUrl: config.rpcUrl,
+      agrolockContractId: config.agrolockContractId,
+      tokenContractId: config.tokenContractId,
+      latestLedgerSequence: latestLedger.sequence,
+      timestamp: new Date().toISOString(),
+    });
+  } catch (err) {
+    res.status(500).json({ status: 'error', error: err.message });
+  }
+});
 app.use('/auth', authRouter);
 app.use('/deals', dealsRouter);
 app.use('/tx', txRouter);
