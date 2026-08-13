@@ -57,5 +57,8 @@ export const api = {
     request(`/deals/${id}/milestones/${milestoneId}/release`, { method: 'POST' }),
   dispute: (id, milestoneId) => request(`/deals/${id}/milestones/${milestoneId}/dispute`, { method: 'POST' }),
   refund: (id, milestoneId) => request(`/deals/${id}/milestones/${milestoneId}/refund`, { method: 'POST' }),
+  resolveDispute: (id, milestoneId, releaseToFarmer) =>
+    request(`/deals/${id}/milestones/${milestoneId}/resolve`, { method: 'POST', body: { releaseToFarmer } }),
+  cancelEscrow: (id) => request(`/deals/${id}/cancel`, { method: 'POST' }),
   submitTx: (signedXdr) => request('/tx/submit', { method: 'POST', body: { signedXdr } }),
 };

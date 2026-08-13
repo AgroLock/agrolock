@@ -36,7 +36,7 @@ export default function MilestoneTimeline({ deal, address, roles, onDone, onErro
             )}
             {m.status === 'Disputed' && (
               <p className="text-xs text-slate-500 mt-3">
-                {m.refundVotes.length} of {deal.quorum} votes to refund the buyer
+                Disputed milestone — {m.releaseVotes.length} votes to release to farmer · {m.refundVotes.length} votes to refund buyer ({deal.quorum} needed)
               </p>
             )}
 
@@ -73,16 +73,28 @@ export default function MilestoneTimeline({ deal, address, roles, onDone, onErro
               </div>
             )}
 
-            {canAct && m.status === 'Disputed' && !hasRefundVoted && (
-              <div className="mt-4">
-                <TxButton
-                  className={dangerButton}
-                  build={() => api.refund(deal.id, m.index)}
-                  onSuccess={onDone}
-                  onError={onError}
-                >
-                  Vote to refund the buyer
-                </TxButton>
+            {canAct && m.status === 'Disputed' && (
+              <div className="mt-4 flex flex-wrap gap-2">
+                {!hasReleaseVoted && (
+                  <TxButton
+                    className={primaryButton}
+                    build={() => api.resolveDispute(deal.id, m.index, true)}
+                    onSuccess={onDone}
+                    onError={onError}
+                  >
+                    Vote to release to farmer
+                  </TxButton>
+                )}
+                {!hasRefundVoted && (
+                  <TxButton
+                    className={dangerButton}
+                    build={() => api.resolveDispute(deal.id, m.index, false)}
+                    onSuccess={onDone}
+                    onError={onError}
+                  >
+                    Vote to refund the buyer
+                  </TxButton>
+                )}
               </div>
             )}
           </li>
