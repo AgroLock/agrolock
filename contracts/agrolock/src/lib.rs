@@ -355,6 +355,21 @@ impl AgroLockContract {
         }
     }
 
+    /// Allows the buyer to cancel an unfunded escrow in `Created` state.
+    pub fn cancel_escrow(env: Env, escrow_id: u64) -> Result<(), Error> {
+        let escrow = Self::load(&env, escrow_id)?;
+        if escrow.status != EscrowStatus::Created {
+            return Err(Error::NotCreated);
+        }
+        escrow.buyer.require_auth();
+
+        let key = DataKey::Escrow(escrow_id);
+        env.storage().persistent().remove(&key);
+
+        env.events().publish((symbol_short!("cancelled"), escrow_id), escrow.buyer);
+        Ok(())
+    }
+
     // ---- read-only views (no auth required) ----
 
     pub fn get_escrow(env: Env, escrow_id: u64) -> Result<Escrow, Error> {
@@ -377,7 +392,10 @@ impl AgroLockContract {
     }
 
     fn load(env: &Env, escrow_id: u64) -> Result<Escrow, Error> {
-        env.storage().persistent().get(&DataKey::Escrow(escrow_id)).ok_or(Error::NotFound)
+        let key = DataKey::Escrow(escrow_id);
+        let escrow: Escrow = env.storage().persistent().get(&key).ok_or(Error::NotFound)?;
+        env.storage().persistent().extend_ttl(&key, THRESHOLD, BUMP_AMOUNT);
+        Ok(escrow)
     }
 
     fn save(env: &Env, escrow_id: u64, escrow: &Escrow) {

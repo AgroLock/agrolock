@@ -186,3 +186,37 @@ fn milestone_amounts_must_sum_to_total() {
     );
     assert!(result.is_err());
 }
+
+#[test]
+fn resolve_dispute_release_to_farmer() {
+    let s = setup();
+    let (descriptions, amounts, total) = milestones(&s.env);
+    let escrow_id =
+        s.contract.create_escrow(&s.buyer, &s.farmer, &s.attestor, &s.token.address, &total, &descriptions, &amounts, &2);
+    s.contract.fund_escrow(&escrow_id);
+
+    // Buyer disputes milestone 0
+    s.contract.dispute(&escrow_id, &0, &s.buyer);
+    let m = s.contract.get_milestone(&escrow_id, &0);
+    assert_eq!(m.status, MilestoneStatus::Disputed);
+
+    // Attestor + Farmer vote to resolve in favor of farmer
+    s.contract.resolve_dispute(&escrow_id, &0, &true, &s.attestor);
+    s.contract.resolve_dispute(&escrow_id, &0, &true, &s.farmer);
+
+    let m = s.contract.get_milestone(&escrow_id, &0);
+    assert_eq!(m.status, MilestoneStatus::Released);
+    assert_eq!(s.token.balance(&s.farmer), 3_000_000);
+}
+
+#[test]
+fn cancel_unfunded_escrow() {
+    let s = setup();
+    let (descriptions, amounts, total) = milestones(&s.env);
+    let escrow_id =
+        s.contract.create_escrow(&s.buyer, &s.farmer, &s.attestor, &s.token.address, &total, &descriptions, &amounts, &2);
+
+    s.contract.cancel_escrow(&escrow_id);
+    let result = s.contract.try_get_escrow(&escrow_id);
+    assert!(result.is_err());
+}
