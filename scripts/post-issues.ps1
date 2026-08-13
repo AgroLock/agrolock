@@ -8,7 +8,7 @@ if (-not $Token) {
 }
 
 $issuesDir = Join-Path $PSScriptRoot "..\.github\issues"
-$files = Get-ChildItem -Path "$issuesDir\0*.md" | Sort-Object Name
+$files = Get-ChildItem -Path "$issuesDir\14*.md" | Sort-Object Name
 
 Write-Host "Posting $($files.Count) issues to AgroLock/agrolock..." -ForegroundColor Cyan
 
