@@ -18,4 +18,5 @@ All audit findings and feature enhancements have been published and resolved on 
 | 12 | 🎨 **Feature** | Frontend UI | `[Frontend] Add interactive dispute resolution voting interface` | ✅ **Resolved in fef783c** | [#37](https://github.com/AgroLock/agrolock/issues/37) |
 | 13 | 📡 **Feature** | Backend API | `[Backend] Add network telemetry & indexer status endpoint` | ✅ **Resolved in Task 3** | [#38](https://github.com/AgroLock/agrolock/issues/38) |
 | 14 | 📝 **Feature** | Documentation | `[Docs] Synchronize README and issue tracker documentation` | ✅ **Resolved in Task 4** | [#39](https://github.com/AgroLock/agrolock/issues/39) |
-| 15 | 🔔 **Feature** | Frontend UI | `[Frontend] Responsive Agile Toast Notification & Feedback System` | ✅ **Resolved** | [#40](https://github.com/AgroLock/agrolock/issues/40) |
+| 15 | 🔔 **Feature** | Frontend UI | `[Frontend] Responsive Agile Toast Notification & Feedback System` | ✅ **Resolved in bfb2a90** | [#40](https://github.com/AgroLock/agrolock/issues/40) |
+| 16 | 🔍 **Feature** | Frontend UI | `[Frontend] Agile Deal Search, Multi-Filter Pills & Live Sorting Dashboard` | ✅ **Resolved** | [#41](https://github.com/AgroLock/agrolock/issues/41) |
