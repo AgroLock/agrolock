@@ -29,46 +29,50 @@ function ScrollToTop() {
   return null;
 }
 
+import { ToastProvider } from './context/ToastContext';
+
 export default function App() {
   return (
-    <WalletProvider>
-      <SiteBackground />
-      {/* HashRouter: GitHub Pages has no server-side rewrites, so deep
-          links / refreshes on a sub-route would 404 with BrowserRouter. */}
-      <HashRouter>
-        <ScrollToTop />
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/technology" element={<Technology />} />
-          <Route path="/roadmap" element={<Roadmap />} />
-          <Route
-            path="/dashboard"
-            element={
-              <Gate>
-                <Dashboard />
-              </Gate>
-            }
-          />
-          <Route
-            path="/deals/new"
-            element={
-              <Gate>
-                <CreateDeal />
-              </Gate>
-            }
-          />
-          <Route
-            path="/deals/:id"
-            element={
-              <Gate>
-                <DealDetail />
-              </Gate>
-            }
-          />
-        </Routes>
-      </HashRouter>
-    </WalletProvider>
+    <ToastProvider>
+      <WalletProvider>
+        <SiteBackground />
+        {/* HashRouter: GitHub Pages has no server-side rewrites, so deep
+            links / refreshes on a sub-route would 404 with BrowserRouter. */}
+        <HashRouter>
+          <ScrollToTop />
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/how-it-works" element={<HowItWorks />} />
+            <Route path="/technology" element={<Technology />} />
+            <Route path="/roadmap" element={<Roadmap />} />
+            <Route
+              path="/dashboard"
+              element={
+                <Gate>
+                  <Dashboard />
+                </Gate>
+              }
+            />
+            <Route
+              path="/deals/new"
+              element={
+                <Gate>
+                  <CreateDeal />
+                </Gate>
+              }
+            />
+            <Route
+              path="/deals/:id"
+              element={
+                <Gate>
+                  <DealDetail />
+                </Gate>
+              }
+            />
+          </Routes>
+        </HashRouter>
+      </WalletProvider>
+    </ToastProvider>
   );
 }
